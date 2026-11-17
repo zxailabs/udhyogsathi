@@ -684,34 +684,26 @@ export default function ChatPage() {
                               </div>
                             )}
 
-                            {/* Message Action Bar (Copy + Model label) */}
+                            {/* Message Action Bar (Copy) */}
                             {msg.content && (
-                              <div className="pt-2 flex flex-wrap items-center justify-between gap-2 text-[11px] text-slate-400">
-                                <div className="flex items-center gap-2">
-                                  <button
-                                    type="button"
-                                    onClick={() => void handleCopy(msg.id, msg.content)}
-                                    className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-white/[0.04] hover:bg-white/[0.08] border border-white/10 text-slate-300 hover:text-white transition"
-                                  >
-                                    {copiedId === msg.id ? (
-                                      <>
-                                        <Check className="w-3.5 h-3.5 text-emerald-400" />
-                                        <span className="text-emerald-300">कॉपी झाले</span>
-                                      </>
-                                    ) : (
-                                      <>
-                                        <Copy className="w-3.5 h-3.5" />
-                                        <span>कॉपी</span>
-                                      </>
-                                    )}
-                                  </button>
-                                </div>
-
-                                {msg.modelUsed && (
-                                  <span className="font-space text-[10px] text-slate-500">
-                                    {msg.modelUsed}
-                                  </span>
-                                )}
+                              <div className="pt-2 flex items-center justify-start text-[11px] text-slate-400">
+                                <button
+                                  type="button"
+                                  onClick={() => void handleCopy(msg.id, msg.content)}
+                                  className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-white/[0.04] hover:bg-white/[0.08] border border-white/10 text-slate-300 hover:text-white transition"
+                                >
+                                  {copiedId === msg.id ? (
+                                    <>
+                                      <Check className="w-3.5 h-3.5 text-emerald-400" />
+                                      <span className="text-emerald-300">कॉपी झाले</span>
+                                    </>
+                                  ) : (
+                                    <>
+                                      <Copy className="w-3.5 h-3.5" />
+                                      <span>कॉपी</span>
+                                    </>
+                                  )}
+                                </button>
                               </div>
                             )}
                           </div>
