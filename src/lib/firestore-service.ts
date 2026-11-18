@@ -3,13 +3,16 @@ import {
   getFirestore,
   collection,
   addDoc,
+  setDoc,
+  deleteDoc,
+  doc,
   getDocs,
   query,
   where,
   limit,
   Firestore,
 } from "firebase/firestore";
-import { EntrepreneurProfile } from "@/types";
+import { EntrepreneurProfile, LocalServicePartner } from "@/types";
 
 const firebaseConfig = {
   apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY || "",
@@ -145,6 +148,51 @@ export async function fetchEntrepreneursFromFirestore(): Promise<EntrepreneurPro
     return snap.docs.map((d) => d.data() as EntrepreneurProfile);
   } catch {
     return [];
+  }
+}
+
+/**
+ * Saves or updates a LocalServicePartner in Firestore (if configured).
+ */
+export async function saveServicePartnerToFirestore(
+  partner: LocalServicePartner
+): Promise<boolean> {
+  const db = getDb();
+  if (!db) return false;
+  try {
+    await setDoc(doc(db, "service_partners", partner.id), partner, { merge: true });
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+/**
+ * Fetches all LocalServicePartners from Firestore (if configured).
+ */
+export async function fetchServicePartnersFromFirestore(): Promise<LocalServicePartner[]> {
+  const db = getDb();
+  if (!db) return [];
+  try {
+    const q = query(collection(db, "service_partners"), limit(300));
+    const snap = await getDocs(q);
+    return snap.docs.map((d) => d.data() as LocalServicePartner);
+  } catch {
+    return [];
+  }
+}
+
+/**
+ * Deletes a LocalServicePartner from Firestore (if configured).
+ */
+export async function deleteServicePartnerFromFirestore(id: string): Promise<boolean> {
+  const db = getDb();
+  if (!db) return false;
+  try {
+    await deleteDoc(doc(db, "service_partners", id));
+    return true;
+  } catch {
+    return false;
   }
 }
 

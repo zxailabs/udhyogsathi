@@ -80,6 +80,32 @@ export interface VerifiedSourceMeta {
   officialUrl: string;
 }
 
+export type ServiceCategory =
+  | "udyam"
+  | "shop_act"
+  | "dpr"
+  | "gst_ca"
+  | "loan_file"
+  | "fssai_license"
+  | "midc_maitri";
+
+export interface LocalServicePartner {
+  id: string;
+  name: string;
+  roleTitle: string;
+  district: string;
+  talukaOrArea: string;
+  address: string;
+  mobile: string;
+  whatsapp?: string;
+  googleMapsUrl?: string;
+  services: ServiceCategory[];
+  verifiedByAghadi: boolean;
+  status: "approved" | "pending";
+  notes?: string;
+  createdAt?: string;
+}
+
 export interface ChatMessage {
   id: string;
   role: "user" | "assistant";
@@ -89,5 +115,6 @@ export interface ChatMessage {
   groundingSources?: GroundingSource[];
   modelUsed?: string;
   isOfflineFallback?: boolean;
+  detectedServices?: ServiceCategory[];
 }
 

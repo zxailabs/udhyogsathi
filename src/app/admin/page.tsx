@@ -5,24 +5,30 @@ import Link from "next/link";
 import {
   ArrowLeft,
   Award,
+  BadgeCheck,
   BarChart3,
   BookOpen,
   Briefcase,
   Building2,
   Calendar,
   CheckCircle2,
+  Clock,
   Download,
+  Edit3,
   ExternalLink,
   Filter,
   KeyRound,
   Layers,
   LogOut,
   MapPin,
+  MessageCircle,
+  Navigation,
   Phone,
   Plus,
   RefreshCw,
   Search,
   ShieldCheck,
+  Trash2,
   TrendingUp,
   UserCheck,
   Users,
@@ -30,6 +36,7 @@ import {
 import { AmbientBackground } from "@/components/AmbientBackground";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
 import { ProfileModal } from "@/components/ProfileModal";
+import { ServicePartnerModal } from "@/components/ServicePartnerModal";
 import {
   BUSINESS_STAGES,
   CASTE_CATEGORIES,
@@ -41,13 +48,34 @@ import {
   searchKnowledgeBase,
 } from "@/lib/knowledge-search";
 import {
+  buildPartnerMapsUrl,
+  buildTelUrl,
+  buildWhatsAppUrl,
+  getDistrictMarathiName,
+  getServiceCategoryInfo,
+  SERVICE_CATEGORIES,
+} from "@/lib/local-help";
+import {
   AuthSession,
+  deleteServicePartnerLocal,
   loadAllRegisteredEntrepreneurs,
+  loadAllServicePartners,
   loadAuthSession,
+  mergeServicePartners,
   saveAuthSession,
+  upsertServicePartner,
 } from "@/lib/storage";
-import { fetchEntrepreneursFromFirestore } from "@/lib/firestore-service";
-import { EntrepreneurProfile } from "@/types";
+import {
+  deleteServicePartnerFromFirestore,
+  fetchEntrepreneursFromFirestore,
+  fetchServicePartnersFromFirestore,
+  saveServicePartnerToFirestore,
+} from "@/lib/firestore-service";
+import {
+  EntrepreneurProfile,
+  LocalServicePartner,
+  ServiceCategory,
+} from "@/types";
 
 const TOP_FAQ_TOPICS = [
   { topic: "CMEGP व PMEGP ३५% सबसिडी पात्रता", count: 148, section: "कर्ज व अनुदान" },
@@ -88,7 +116,9 @@ function getCasteBadgeColor(caste?: string): { bg: string; text: string; border:
 
 export default function AdminPage() {
   const [auth, setAuth] = useState<AuthSession | null>(null);
-  const [activeTab, setActiveTab] = useState<"analytics" | "kb">("analytics");
+  const [activeTab, setActiveTab] = useState<"analytics" | "partners" | "kb">(
+    "analytics"
+  );
 
   // Users registry state
   const [entrepreneurs, setEntrepreneurs] = useState<EntrepreneurProfile[]>([]);
@@ -97,6 +127,18 @@ export default function AdminPage() {
   const [filterSector, setFilterSector] = useState("all");
   const [filterDistrict, setFilterDistrict] = useState("all");
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
+
+  // Local Service Partners state
+  const [servicePartners, setServicePartners] = useState<LocalServicePartner[]>([]);
+  const [partnerSearchQuery, setPartnerSearchQuery] = useState("");
+  const [partnerFilterDistrict, setPartnerFilterDistrict] = useState("all");
+  const [partnerFilterService, setPartnerFilterService] = useState<
+    ServiceCategory | "all"
+  >("all");
+  const [isPartnerModalOpen, setIsPartnerModalOpen] = useState(false);
+  const [editingPartner, setEditingPartner] = useState<LocalServicePartner | null>(
+    null
+  );
 
   // Knowledge base state
   const [kbQuery, setKbQuery] = useState("");
@@ -138,7 +180,114 @@ export default function AdminPage() {
   useEffect(() => {
     setAuth(loadAuthSession());
     loadAllUsers();
+    loadAllPartners();
   }, []);
+
+  const loadAllPartners = () => {
+    const localList = loadAllServicePartners();
+    setServicePartners(localList);
+    void fetchServicePartnersFromFirestore().then((remoteList) => {
+      if (remoteList && remoteList.length > 0) {
+        setServicePartners((prev) => mergeServicePartners(prev, remoteList));
+      }
+    });
+  };
+
+  const handleSavePartner = (partner: LocalServicePartner) => {
+    const updated = upsertServicePartner(partner);
+    setServicePartners(updated);
+    void saveServicePartnerToFirestore(partner);
+    setEditingPartner(null);
+  };
+
+  const handleApprovePartner = (partner: LocalServicePartner) => {
+    const approved: LocalServicePartner = {
+      ...partner,
+      status: "approved",
+      verifiedByAghadi: true,
+    };
+    handleSavePartner(approved);
+  };
+
+  const handleDeletePartner = (id: string) => {
+    const updated = deleteServicePartnerLocal(id);
+    setServicePartners(updated);
+    void deleteServicePartnerFromFirestore(id);
+  };
+
+  const pendingPartners = useMemo(
+    () => servicePartners.filter((p) => p.status === "pending"),
+    [servicePartners]
+  );
+
+  const approvedPartners = useMemo(
+    () => servicePartners.filter((p) => p.status === "approved"),
+    [servicePartners]
+  );
+
+  const filteredPartners = useMemo(() => {
+    const q = partnerSearchQuery.trim().toLowerCase();
+    return approvedPartners.filter((p) => {
+      const matchesDistrict =
+        partnerFilterDistrict === "all" || p.district === partnerFilterDistrict;
+      const matchesService =
+        partnerFilterService === "all" ||
+        p.services.includes(partnerFilterService);
+      const matchesQuery =
+        !q ||
+        p.name.toLowerCase().includes(q) ||
+        p.roleTitle.toLowerCase().includes(q) ||
+        p.talukaOrArea.toLowerCase().includes(q) ||
+        p.address.toLowerCase().includes(q) ||
+        p.mobile.includes(q);
+      return matchesDistrict && matchesService && matchesQuery;
+    });
+  }, [
+    approvedPartners,
+    partnerSearchQuery,
+    partnerFilterDistrict,
+    partnerFilterService,
+  ]);
+
+  const handleExportPartnersCsv = () => {
+    const headers = [
+      "अनुक्रमांक",
+      "नाव / केंद्र",
+      "ओळख / पद",
+      "जिल्हा",
+      "तालुका / परिसर",
+      "पत्ता",
+      "मोबाईल",
+      "WhatsApp",
+      "सेवा",
+      "प्रमाणित",
+    ];
+    const rows = filteredPartners.map((p, idx) => [
+      idx + 1,
+      `"${p.name.replace(/"/g, '""')}"`,
+      `"${p.roleTitle.replace(/"/g, '""')}"`,
+      `"${p.district}"`,
+      `"${p.talukaOrArea.replace(/"/g, '""')}"`,
+      `"${p.address.replace(/"/g, '""')}"`,
+      `"${p.mobile}"`,
+      `"${p.whatsapp || p.mobile}"`,
+      `"${p.services.map((s) => getServiceCategoryInfo(s).shortLabel).join(", ")}"`,
+      `"${p.verifiedByAghadi ? "होय" : "नाही"}"`,
+    ]);
+    const csvContent =
+      "\uFEFF" + [headers.join(","), ...rows.map((r) => r.join(","))].join("\r\n");
+    const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.setAttribute(
+      "download",
+      `भाजप_उद्योग_आघाडी_स्थानिक_सेवा_केंद्रे_${new Date().toISOString().slice(0, 10)}.csv`
+    );
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
 
   const loadAllUsers = () => {
     const localUsers = loadAllRegisteredEntrepreneurs();
@@ -443,12 +592,23 @@ export default function AdminPage() {
             <div className="flex items-center gap-2">
               <button
                 type="button"
-                onClick={loadAllUsers}
+                onClick={() => {
+                  loadAllUsers();
+                  loadAllPartners();
+                }}
                 title="डेटा रिफ्रेश करा"
                 className="p-2 rounded-xl bg-white/[0.04] hover:bg-white/10 border border-white/10 text-slate-300 hover:text-white transition"
               >
                 <RefreshCw className="w-4 h-4" />
               </button>
+
+              <Link
+                href="/local-help"
+                className="hidden sm:inline-flex px-3 py-2 rounded-xl bg-white/[0.04] hover:bg-white/10 border border-white/10 text-xs font-semibold text-slate-200 items-center gap-1.5 transition"
+              >
+                <MapPin className="w-3.5 h-3.5 text-emerald-400" />
+                <span>डिरेक्टरी पहा</span>
+              </Link>
 
               <Link
                 href="/chat"
@@ -470,7 +630,7 @@ export default function AdminPage() {
           </div>
 
           {/* Primary Navigation Buttons / Tabs */}
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 pt-1 pb-3 flex items-center gap-2 border-t border-white/[0.04]">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 pt-1 pb-3 flex flex-wrap items-center gap-2 border-t border-white/[0.04]">
             <button
               type="button"
               onClick={() => setActiveTab("analytics")}
@@ -481,10 +641,31 @@ export default function AdminPage() {
               }`}
             >
               <Users className="w-4 h-4" />
-              <span>उद्योजक डेटा व ॲनालिटिक्स (User Management & Analytics)</span>
+              <span>उद्योजक डेटा व ॲनालिटिक्स</span>
               <span className="ml-1 text-[11px] px-2 py-0.5 rounded-full bg-black/25">
                 {totalCount}
               </span>
+            </button>
+
+            <button
+              type="button"
+              onClick={() => setActiveTab("partners")}
+              className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs sm:text-sm font-bold transition ${
+                activeTab === "partners"
+                  ? "bg-gradient-to-r from-sky-500 to-blue-600 text-white shadow-sky-500/20"
+                  : "bg-white/[0.04] text-slate-300 hover:text-white hover:bg-white/[0.08] border border-white/10"
+              }`}
+            >
+              <MapPin className="w-4 h-4" />
+              <span>स्थानिक सेवा केंद्रे (उद्यम / शॉप ॲक्ट / DPR)</span>
+              <span className="ml-1 text-[11px] px-2 py-0.5 rounded-full bg-black/25">
+                {approvedPartners.length}
+              </span>
+              {pendingPartners.length > 0 && (
+                <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-amber-400 text-slate-950 font-extrabold">
+                  +{pendingPartners.length} नवीन
+                </span>
+              )}
             </button>
 
             <button
@@ -497,7 +678,7 @@ export default function AdminPage() {
               }`}
             >
               <BookOpen className="w-4 h-4" />
-              <span>प्रमाणित ज्ञानकोश (Knowledge Base)</span>
+              <span>प्रमाणित ज्ञानकोश</span>
               <span className="ml-1 text-[11px] px-2 py-0.5 rounded-full bg-black/25">
                 {allKbRecords.length}
               </span>
@@ -880,6 +1061,282 @@ export default function AdminPage() {
                 </div>
               </section>
             </>
+          ) : activeTab === "partners" ? (
+            /* Local Service Partners Management Tab (Hybrid Model Layer 1 Admin Control) */
+            <div className="space-y-6">
+              {/* Pending Approval Requests */}
+              {pendingPartners.length > 0 && (
+                <section className="glass-card rounded-2xl p-5 border border-amber-500/40 bg-amber-500/[0.06] space-y-3">
+                  <div className="flex items-center justify-between gap-2">
+                    <h2 className="text-sm sm:text-base font-bold text-amber-300 flex items-center gap-2">
+                      <Clock className="w-4 h-4" />
+                      <span>
+                        मंजुरीसाठी प्रलंबित नोंदणी विनंत्या ({pendingPartners.length})
+                      </span>
+                    </h2>
+                    <span className="text-[11px] text-amber-200/80">
+                      मंजूर केल्यावर थेट युझर्सना चॅट व डिरेक्टरीमध्ये दिसतील
+                    </span>
+                  </div>
+
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                    {pendingPartners.map((partner) => (
+                      <div
+                        key={partner.id}
+                        className="rounded-xl bg-[#0a0f1e]/90 border border-amber-500/30 p-4 space-y-2.5"
+                      >
+                        <div className="flex items-start justify-between gap-2">
+                          <div>
+                            <p className="text-sm font-bold text-white">
+                              {partner.name}
+                            </p>
+                            <p className="text-xs text-amber-300">
+                              {partner.roleTitle}
+                            </p>
+                          </div>
+                          <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-amber-500/20 text-amber-300 border border-amber-500/40">
+                            प्रलंबित
+                          </span>
+                        </div>
+                        <p className="text-xs text-slate-300">
+                          <strong>{getDistrictMarathiName(partner.district)}</strong> •{" "}
+                          {partner.talukaOrArea} — {partner.address}
+                        </p>
+                        <p className="text-xs text-slate-300 font-space">
+                          📞 {partner.mobile}
+                          {partner.whatsapp && partner.whatsapp !== partner.mobile
+                            ? ` • WhatsApp: ${partner.whatsapp}`
+                            : ""}
+                        </p>
+                        <div className="flex flex-wrap gap-1">
+                          {partner.services.map((s) => (
+                            <span
+                              key={s}
+                              className="text-[10px] px-2 py-0.5 rounded bg-white/10 text-slate-200"
+                            >
+                              {getServiceCategoryInfo(s).shortLabel}
+                            </span>
+                          ))}
+                        </div>
+                        <div className="flex items-center gap-2 pt-2 border-t border-white/10">
+                          <button
+                            type="button"
+                            onClick={() => handleApprovePartner(partner)}
+                            className="flex-1 inline-flex items-center justify-center gap-1.5 py-2 rounded-lg bg-emerald-500 hover:bg-emerald-400 text-slate-950 text-xs font-bold transition"
+                          >
+                            <CheckCircle2 className="w-3.5 h-3.5" />
+                            <span>मंजूर करा (Approve)</span>
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => handleDeletePartner(partner.id)}
+                            className="inline-flex items-center justify-center gap-1 px-3 py-2 rounded-lg bg-red-500/15 hover:bg-red-500/25 border border-red-500/35 text-red-300 text-xs font-semibold transition"
+                          >
+                            <Trash2 className="w-3.5 h-3.5" />
+                            <span>रद्द</span>
+                          </button>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </section>
+              )}
+
+              {/* Approved Local Partners Directory & Controls */}
+              <section className="glass-card rounded-2xl p-5 sm:p-6 border border-white/10 space-y-4">
+                <div className="flex flex-col md:flex-row md:items-center justify-between gap-3">
+                  <div>
+                    <h2 className="text-base sm:text-lg font-bold text-white flex items-center gap-2">
+                      <MapPin className="w-5 h-5 text-sky-400" />
+                      <span>
+                        जिल्हास्तरीय प्रमाणित सेवा केंद्रे ({filteredPartners.length})
+                      </span>
+                    </h2>
+                    <p className="text-xs text-slate-400 mt-0.5">
+                      उद्यम आधार, शॉप ॲक्ट, DPR, GST व बँक फाईलसाठी युझर्सना चॅटमध्ये दिसणारी संपर्क यादी येथून मॅनेज करा
+                    </p>
+                  </div>
+
+                  <div className="flex flex-wrap items-center gap-2">
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setEditingPartner(null);
+                        setIsPartnerModalOpen(true);
+                      }}
+                      className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-gradient-to-r from-[#FF6B00] to-[#f59e0b] text-white text-xs font-bold shadow-lg shadow-orange-500/20 hover:brightness-110 transition"
+                    >
+                      <Plus className="w-4 h-4" />
+                      <span>नवीन सल्लागार / केंद्र जोडा</span>
+                    </button>
+
+                    <button
+                      type="button"
+                      onClick={handleExportPartnersCsv}
+                      className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-emerald-500/15 hover:bg-emerald-500/25 border border-emerald-500/35 text-emerald-300 text-xs font-bold transition"
+                    >
+                      <Download className="w-4 h-4" />
+                      <span>CSV डाउनलोड</span>
+                    </button>
+                  </div>
+                </div>
+
+                {/* Filters */}
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+                  <div className="relative">
+                    <Search className="w-4 h-4 text-slate-400 absolute left-3 top-2.5" />
+                    <input
+                      type="text"
+                      value={partnerSearchQuery}
+                      onChange={(e) => setPartnerSearchQuery(e.target.value)}
+                      placeholder="नाव, तालुका किंवा मोबाईल नंबर शोधा..."
+                      className="w-full rounded-xl bg-white/[0.04] border border-white/10 pl-9 pr-3 py-2 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-[#FF6B00]"
+                    />
+                  </div>
+
+                  <select
+                    value={partnerFilterDistrict}
+                    onChange={(e) => setPartnerFilterDistrict(e.target.value)}
+                    className="rounded-xl bg-[#0b1224] border border-white/10 px-3 py-2 text-xs text-white focus:outline-none focus:border-[#FF6B00]"
+                  >
+                    <option value="all">सर्व जिल्हे (All 36 Districts)</option>
+                    {MAHARASHTRA_DISTRICTS.map((d) => (
+                      <option key={d} value={d}>
+                        {d}
+                      </option>
+                    ))}
+                  </select>
+
+                  <select
+                    value={partnerFilterService}
+                    onChange={(e) =>
+                      setPartnerFilterService(
+                        e.target.value as ServiceCategory | "all"
+                      )
+                    }
+                    className="rounded-xl bg-[#0b1224] border border-white/10 px-3 py-2 text-xs text-white focus:outline-none focus:border-[#FF6B00]"
+                  >
+                    <option value="all">सर्व सेवा (All Services)</option>
+                    {SERVICE_CATEGORIES.map((s) => (
+                      <option key={s.id} value={s.id}>
+                        {s.label}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
+                {/* Partners Grid */}
+                {filteredPartners.length > 0 ? (
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-3.5">
+                    {filteredPartners.map((partner) => (
+                      <div
+                        key={partner.id}
+                        className="rounded-xl bg-white/[0.03] border border-white/[0.08] p-4 flex flex-col justify-between gap-3"
+                      >
+                        <div className="space-y-2">
+                          <div className="flex items-start justify-between gap-2">
+                            <div>
+                              <h3 className="text-sm font-bold text-white flex items-center gap-1.5">
+                                <span>{partner.name}</span>
+                                {partner.verifiedByAghadi && (
+                                  <BadgeCheck className="w-4 h-4 text-emerald-400 shrink-0" />
+                                )}
+                              </h3>
+                              <p className="text-xs text-orange-300">
+                                {partner.roleTitle}
+                              </p>
+                            </div>
+
+                            <div className="flex items-center gap-1 shrink-0">
+                              <button
+                                type="button"
+                                onClick={() => {
+                                  setEditingPartner(partner);
+                                  setIsPartnerModalOpen(true);
+                                }}
+                                title="माहिती सुधारा"
+                                className="p-1.5 rounded-lg bg-white/[0.06] hover:bg-sky-500/20 text-slate-300 hover:text-sky-300 transition"
+                              >
+                                <Edit3 className="w-3.5 h-3.5" />
+                              </button>
+                              <button
+                                type="button"
+                                onClick={() => handleDeletePartner(partner.id)}
+                                title="काढून टाका"
+                                className="p-1.5 rounded-lg bg-white/[0.06] hover:bg-red-500/20 text-slate-300 hover:text-red-300 transition"
+                              >
+                                <Trash2 className="w-3.5 h-3.5" />
+                              </button>
+                            </div>
+                          </div>
+
+                          <p className="text-xs text-slate-300">
+                            <strong className="text-white">
+                              {getDistrictMarathiName(partner.district)}
+                            </strong>{" "}
+                            • {partner.talukaOrArea} — {partner.address}
+                          </p>
+
+                          <div className="flex flex-wrap gap-1">
+                            {partner.services.map((svc) => {
+                              const meta = getServiceCategoryInfo(svc);
+                              return (
+                                <span
+                                  key={svc}
+                                  className={`text-[10px] font-semibold px-2 py-0.5 rounded border ${meta.colorClass}`}
+                                >
+                                  {meta.shortLabel}
+                                </span>
+                              );
+                            })}
+                          </div>
+                        </div>
+
+                        <div className="flex flex-wrap items-center justify-between gap-2 pt-2.5 border-t border-white/[0.06] text-xs">
+                          <span className="font-space text-slate-200 font-semibold">
+                            📞 {partner.mobile}
+                          </span>
+                          <div className="flex items-center gap-1.5">
+                            <a
+                              href={buildTelUrl(partner.mobile)}
+                              className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-[#FF6B00]/15 text-orange-300 hover:bg-[#FF6B00]/25 transition"
+                            >
+                              <Phone className="w-3 h-3" />
+                              कॉल
+                            </a>
+                            <a
+                              href={buildWhatsAppUrl(
+                                partner.whatsapp || partner.mobile,
+                                partner.name
+                              )}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-emerald-500/15 text-emerald-300 hover:bg-emerald-500/25 transition"
+                            >
+                              <MessageCircle className="w-3 h-3" />
+                              WhatsApp
+                            </a>
+                            <a
+                              href={buildPartnerMapsUrl(partner)}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-sky-500/15 text-sky-300 hover:bg-sky-500/25 transition"
+                            >
+                              <Navigation className="w-3 h-3" />
+                              मॅप
+                            </a>
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <div className="text-center py-8 text-xs text-slate-400">
+                    या फिल्टरनुसार कोणतेही सेवा केंद्र सापडले नाही. वरील &ldquo;नवीन सल्लागार / केंद्र जोडा&rdquo; बटनावरून लगेच जोडा.
+                  </div>
+                )}
+              </section>
+            </div>
           ) : (
             /* Knowledge Base Tester & FAQ Section */
             <div className="space-y-6">
@@ -977,6 +1434,18 @@ export default function AdminPage() {
           onSave={() => {
             loadAllUsers();
           }}
+        />
+
+        {/* Modal to add/edit Local Service Partners from Admin directly */}
+        <ServicePartnerModal
+          isOpen={isPartnerModalOpen}
+          onClose={() => {
+            setIsPartnerModalOpen(false);
+            setEditingPartner(null);
+          }}
+          initialPartner={editingPartner}
+          isAdmin={true}
+          onSave={handleSavePartner}
         />
       </div>
     </ErrorBoundary>

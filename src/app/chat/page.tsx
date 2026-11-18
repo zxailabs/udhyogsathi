@@ -9,6 +9,7 @@ import {
   ExternalLink,
   Globe,
   Home,
+  MapPin,
   Menu,
   PanelLeftClose,
   PanelLeftOpen,
@@ -23,15 +24,24 @@ import {
 import { AmbientBackground } from "@/components/AmbientBackground";
 import { DepartmentIcon } from "@/components/DepartmentIcon";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
+import { LocalHelpCard } from "@/components/LocalHelpCard";
 import { MarkdownRenderer } from "@/components/MarkdownRenderer";
 import { ProfileModal } from "@/components/ProfileModal";
 import { VoiceButton } from "@/components/VoiceButton";
 import { DEPARTMENTS, getDepartmentById } from "@/data/departments";
-import { PARTICLES_STORAGE_KEY, loadProfile } from "@/lib/storage";
+import { fetchServicePartnersFromFirestore } from "@/lib/firestore-service";
+import { detectRequestedServices } from "@/lib/local-help";
+import {
+  PARTICLES_STORAGE_KEY,
+  loadAllServicePartners,
+  loadProfile,
+  mergeServicePartners,
+} from "@/lib/storage";
 import {
   ChatMessage,
   EntrepreneurProfile,
   GroundingSource,
+  LocalServicePartner,
   SectionId,
   VerifiedSourceMeta,
 } from "@/types";
@@ -48,6 +58,7 @@ export default function ChatPage() {
   const [isMandatoryPrompt, setIsMandatoryPrompt] = useState(false);
 
   const [messages, setMessages] = useState<ChatMessage[]>([]);
+  const [servicePartners, setServicePartners] = useState<LocalServicePartner[]>([]);
   const [input, setInput] = useState("");
   const [isStreaming, setIsStreaming] = useState(false);
   const [copiedId, setCopiedId] = useState<string | null>(null);
@@ -62,6 +73,14 @@ export default function ChatPage() {
   }, [messages, isStreaming]);
 
   useEffect(() => {
+    const localPartners = loadAllServicePartners();
+    setServicePartners(localPartners);
+    void fetchServicePartnersFromFirestore().then((remote) => {
+      if (remote.length > 0) {
+        setServicePartners((prev) => mergeServicePartners(prev, remote));
+      }
+    });
+
     const loaded = loadProfile();
     setProfile(loaded);
     if (!loaded || !loaded.name || !loaded.name.trim()) {
@@ -92,6 +111,7 @@ export default function ChatPage() {
 
       const sectionToUse = overrideSection || selectedSection;
       const profileToUse = overrideProfile !== undefined ? overrideProfile : profile;
+      const detectedServices = detectRequestedServices(text, sectionToUse);
 
       setDossierExpanded(false);
 
@@ -108,6 +128,8 @@ export default function ChatPage() {
         role: "assistant",
         content: "",
         createdAt: new Date().toISOString(),
+        detectedServices:
+          detectedServices.length > 0 ? detectedServices : undefined,
       };
 
       const historyPayload = messages.slice(-8).map((m) => ({
@@ -174,11 +196,11 @@ export default function ChatPage() {
                   prev.map((m) =>
                     m.id === assistantId
                       ? {
-                          ...m,
-                          content: m.content + event.text,
-                          isOfflineFallback:
-                            m.isOfflineFallback || Boolean(event.offlineFallback),
-                        }
+                        ...m,
+                        content: m.content + event.text,
+                        isOfflineFallback:
+                          m.isOfflineFallback || Boolean(event.offlineFallback),
+                      }
                       : m
                   )
                 );
@@ -210,10 +232,10 @@ export default function ChatPage() {
           prev.map((m) =>
             m.id === assistantId
               ? {
-                  ...m,
-                  content:
-                    "क्षमस्व, सध्या नेटवर्क किंवा सर्व्हरशी संपर्क होऊ शकला नाही. कृपया थोड्या वेळाने पुन्हा प्रयत्न करा.",
-                }
+                ...m,
+                content:
+                  "क्षमस्व, सध्या नेटवर्क किंवा सर्व्हरशी संपर्क होऊ शकला नाही. कृपया थोड्या वेळाने पुन्हा प्रयत्न करा.",
+              }
               : m
           )
         );
@@ -337,11 +359,10 @@ export default function ChatPage() {
               type="button"
               onClick={() => handleSelectSection(dept.id)}
               title={dept.title}
-              className={`w-full flex items-center gap-2.5 px-2.5 py-2.5 rounded-xl text-left transition ${
-                active
+              className={`w-full flex items-center gap-2.5 px-2.5 py-2.5 rounded-xl text-left transition ${active
                   ? "bg-white/[0.08] border border-white/15 text-white"
                   : "text-slate-300 hover:bg-white/[0.04] border border-transparent"
-              }`}
+                }`}
             >
               <span
                 className="w-7 h-7 rounded-lg flex items-center justify-center shrink-0"
@@ -365,8 +386,18 @@ export default function ChatPage() {
         })}
       </div>
 
-      {/* Bottom Profile & Scheme Finder */}
+      {/* Bottom Profile, Local Help & Scheme Finder */}
       <div className="p-3 border-t border-white/[0.07] space-y-2">
+        <Link
+          href="/local-help"
+          className="w-full flex items-center gap-2 px-3 py-2 rounded-xl bg-[#FF6B00]/12 hover:bg-[#FF6B00]/22 border border-[#FF6B00]/35 text-orange-200 text-xs font-semibold transition"
+        >
+          <MapPin className="w-4 h-4 text-[#FF6B00] shrink-0" />
+          {(!sidebarCollapsed || isMobile) && (
+            <span className="truncate">स्थानिक मदत केंद्रे (कॉल / मॅप)</span>
+          )}
+        </Link>
+
         <Link
           href="/scheme-finder"
           className="w-full flex items-center gap-2 px-3 py-2 rounded-xl bg-emerald-500/10 hover:bg-emerald-500/20 border border-emerald-500/30 text-emerald-200 text-xs font-semibold transition"
@@ -407,9 +438,8 @@ export default function ChatPage() {
 
         {/* Desktop Sidebar */}
         <aside
-          className={`hidden lg:flex flex-col relative z-20 border-r border-white/[0.07] bg-[#0a0f1e]/80 backdrop-blur-xl transition-all duration-200 ${
-            sidebarCollapsed ? "w-[74px]" : "w-[290px]"
-          }`}
+          className={`hidden lg:flex flex-col relative z-20 border-r border-white/[0.07] bg-[#0a0f1e]/80 backdrop-blur-xl transition-all duration-200 ${sidebarCollapsed ? "w-[74px]" : "w-[290px]"
+            }`}
         >
           {renderSidebarContent(false)}
         </aside>
@@ -503,256 +533,267 @@ export default function ChatPage() {
           <div className="flex-1 overflow-y-auto chat-scrollbar px-4 sm:px-6 py-5">
             <div className="max-w-4xl mx-auto space-y-5">
               {/* Department Dossier Card */}
-                  {dossierExpanded && (
-                    <section className="glass-card rounded-2xl p-5 sm:p-6 border border-white/10 animate-msgIn">
-                      <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4 pb-4 border-b border-white/[0.07]">
+              {dossierExpanded && (
+                <section className="glass-card rounded-2xl p-5 sm:p-6 border border-white/10 animate-msgIn">
+                  <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4 pb-4 border-b border-white/[0.07]">
+                    <div>
+                      <span
+                        className="inline-block text-[11px] font-semibold px-2.5 py-0.5 rounded-full border mb-2"
+                        style={{
+                          backgroundColor: `${activeDept.color}1A`,
+                          borderColor: `${activeDept.color}40`,
+                          color: "#f8fafc",
+                        }}
+                      >
+                        {activeDept.badge} • अधिकृत विभाग माहिती पत्रक
+                      </span>
+                      <h2 className="text-lg sm:text-xl font-bold text-white">
+                        {activeDept.officialName}
+                      </h2>
+                      <p className="text-xs text-slate-400 mt-1">
+                        नोडल यंत्रणा: {activeDept.nodalAgency}
+                      </p>
+                    </div>
+
+                    <div className="flex flex-wrap gap-2 shrink-0">
+                      <a
+                        href={activeDept.website}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white/[0.05] hover:bg-white/[0.1] border border-white/10 text-xs text-orange-300 font-medium transition"
+                      >
+                        <Globe className="w-3.5 h-3.5" />
+                        <span>अधिकृत वेबसाईट</span>
+                        <ExternalLink className="w-3 h-3" />
+                      </a>
+                      <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-emerald-500/10 border border-emerald-500/25 text-xs text-emerald-300 font-space">
+                        <Phone className="w-3.5 h-3.5" />
+                        {activeDept.helpline}
+                      </span>
+                    </div>
+                  </div>
+
+                  <p className="text-sm text-slate-300 leading-relaxed mt-4">
+                    {activeDept.about}
+                  </p>
+
+                  {/* Wings / Schemes Grid */}
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mt-4">
+                    {activeDept.wings.map((wing) => (
+                      <div
+                        key={wing.title}
+                        className="rounded-xl bg-white/[0.03] border border-white/[0.07] p-3.5 flex flex-col justify-between"
+                      >
                         <div>
-                          <span
-                            className="inline-block text-[11px] font-semibold px-2.5 py-0.5 rounded-full border mb-2"
-                            style={{
-                              backgroundColor: `${activeDept.color}1A`,
-                              borderColor: `${activeDept.color}40`,
-                              color: "#f8fafc",
-                            }}
-                          >
-                            {activeDept.badge} • अधिकृत विभाग माहिती पत्रक
-                          </span>
-                          <h2 className="text-lg sm:text-xl font-bold text-white">
-                            {activeDept.officialName}
-                          </h2>
-                          <p className="text-xs text-slate-400 mt-1">
-                            नोडल यंत्रणा: {activeDept.nodalAgency}
+                          <div className="flex items-center justify-between gap-2 mb-1.5">
+                            <h3 className="text-xs sm:text-sm font-bold text-white">
+                              {wing.title}
+                            </h3>
+                            <span className="text-[10px] font-semibold px-2 py-0.5 rounded-md bg-[#FF6B00]/15 text-orange-300 border border-[#FF6B00]/30 shrink-0">
+                              {wing.tag}
+                            </span>
+                          </div>
+                          <p className="text-xs text-slate-400 leading-relaxed">
+                            {wing.description}
                           </p>
                         </div>
-
-                        <div className="flex flex-wrap gap-2 shrink-0">
+                        {wing.portalUrl && (
                           <a
-                            href={activeDept.website}
+                            href={wing.portalUrl}
                             target="_blank"
                             rel="noopener noreferrer"
-                            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white/[0.05] hover:bg-white/[0.1] border border-white/10 text-xs text-orange-300 font-medium transition"
+                            className="inline-flex items-center gap-1 text-[11px] text-orange-400 hover:text-orange-300 mt-2 font-medium"
                           >
-                            <Globe className="w-3.5 h-3.5" />
-                            <span>अधिकृत वेबसाईट</span>
+                            पोर्टल उघडा
                             <ExternalLink className="w-3 h-3" />
                           </a>
-                          <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-emerald-500/10 border border-emerald-500/25 text-xs text-emerald-300 font-space">
-                            <Phone className="w-3.5 h-3.5" />
-                            {activeDept.helpline}
-                          </span>
-                        </div>
-                      </div>
-
-                      <p className="text-sm text-slate-300 leading-relaxed mt-4">
-                        {activeDept.about}
-                      </p>
-
-                      {/* Wings / Schemes Grid */}
-                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mt-4">
-                        {activeDept.wings.map((wing) => (
-                          <div
-                            key={wing.title}
-                            className="rounded-xl bg-white/[0.03] border border-white/[0.07] p-3.5 flex flex-col justify-between"
-                          >
-                            <div>
-                              <div className="flex items-center justify-between gap-2 mb-1.5">
-                                <h3 className="text-xs sm:text-sm font-bold text-white">
-                                  {wing.title}
-                                </h3>
-                                <span className="text-[10px] font-semibold px-2 py-0.5 rounded-md bg-[#FF6B00]/15 text-orange-300 border border-[#FF6B00]/30 shrink-0">
-                                  {wing.tag}
-                                </span>
-                              </div>
-                              <p className="text-xs text-slate-400 leading-relaxed">
-                                {wing.description}
-                              </p>
-                            </div>
-                            {wing.portalUrl && (
-                              <a
-                                href={wing.portalUrl}
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                className="inline-flex items-center gap-1 text-[11px] text-orange-400 hover:text-orange-300 mt-2 font-medium"
-                              >
-                                पोर्टल उघडा
-                                <ExternalLink className="w-3 h-3" />
-                              </a>
-                            )}
-                          </div>
-                        ))}
-                      </div>
-
-                      {/* 4 Clickable Quick Questions */}
-                      <div className="mt-5 pt-4 border-t border-white/[0.07]">
-                        <p className="text-xs font-semibold text-slate-300 mb-2.5">
-                          त्वरित प्रश्न विचारा (Quick Questions):
-                        </p>
-                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
-                          {activeDept.quickQuestions.map((q) => (
-                            <button
-                              key={q}
-                              type="button"
-                              disabled={isStreaming}
-                              onClick={() => void sendMessage(q)}
-                              className="text-left px-3.5 py-2.5 rounded-xl bg-white/[0.04] hover:bg-[#FF6B00]/15 border border-white/10 hover:border-[#FF6B00]/45 text-xs text-slate-200 hover:text-white transition flex items-start gap-2"
-                            >
-                              <Sparkles className="w-3.5 h-3.5 text-[#FF6B00] shrink-0 mt-0.5" />
-                              <span>{q}</span>
-                            </button>
-                          ))}
-                        </div>
-                      </div>
-                    </section>
-                  )}
-
-                  {/* Chat Messages */}
-                  <div className="space-y-4 pb-4">
-                    {messages.map((msg) => (
-                      <div
-                        key={msg.id}
-                        className={`flex ${
-                          msg.role === "user" ? "justify-end" : "justify-start"
-                        } animate-msgIn`}
-                      >
-                        {msg.role === "user" ? (
-                          <div className="max-w-[85%] sm:max-w-[75%] rounded-2xl rounded-br-sm px-4 py-3 bg-gradient-to-br from-[#FF6B00]/25 to-[#f59e0b]/15 border border-[#FF6B00]/40 text-sm text-white shadow-lg">
-                            {msg.content}
-                          </div>
-                        ) : (
-                          <div className="w-full max-w-[95%] sm:max-w-[88%] glass-card rounded-2xl rounded-bl-sm p-4 sm:p-5 border border-white/10 space-y-3">
-                            {/* Verified Source Pill */}
-                            {msg.verifiedSource && (
-                              <div className="flex flex-wrap items-center justify-between gap-2 px-3 py-2 rounded-xl bg-emerald-500/10 border border-emerald-500/30 text-xs">
-                                <div className="flex items-center gap-2 text-emerald-300">
-                                  <ShieldCheck className="w-4 h-4 shrink-0" />
-                                  <span className="font-semibold">
-                                    प्रमाणित स्रोत: {msg.verifiedSource.department}
-                                  </span>
-                                  <span className="hidden sm:inline text-emerald-400/75">
-                                    ({msg.verifiedSource.grReference})
-                                  </span>
-                                </div>
-                                <a
-                                  href={msg.verifiedSource.officialUrl}
-                                  target="_blank"
-                                  rel="noopener noreferrer"
-                                  className="inline-flex items-center gap-1 text-emerald-200 hover:underline font-medium"
-                                >
-                                  अधिकृत पोर्टल
-                                  <ExternalLink className="w-3 h-3" />
-                                </a>
-                              </div>
-                            )}
-
-                            {/* Typing indicator or Content */}
-                            {!msg.content && isStreaming ? (
-                              <div className="flex items-center gap-2.5 py-2.5">
-                                <span className="typing-dot" />
-                                <span className="typing-dot" />
-                                <span className="typing-dot" />
-                                <span className="text-xs font-semibold text-orange-200/90 ml-1">
-                                  उद्योग साथी AI मार्गदर्शन तयार करत आहे...
-                                </span>
-                              </div>
-                            ) : (
-                              <MarkdownRenderer content={msg.content} />
-                            )}
-
-                            {/* Live Web Grounding Sources */}
-                            {msg.groundingSources && msg.groundingSources.length > 0 && (
-                              <div className="pt-3 border-t border-white/[0.07]">
-                                <p className="text-[11px] font-semibold text-amber-300 mb-2 flex items-center gap-1.5">
-                                  <Globe className="w-3.5 h-3.5" />
-                                  ताजे संदर्भ / Live Sources (Google Search):
-                                </p>
-                                <div className="flex flex-wrap gap-2">
-                                  {msg.groundingSources.map((src) => (
-                                    <a
-                                      key={src.url}
-                                      href={src.url}
-                                      target="_blank"
-                                      rel="noopener noreferrer"
-                                      className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-white/[0.04] hover:bg-white/[0.1] border border-white/10 text-[11px] text-slate-200 transition max-w-full"
-                                    >
-                                      <span className="truncate max-w-[210px]">
-                                        {src.title}
-                                      </span>
-                                      <ExternalLink className="w-3 h-3 text-[#FF6B00] shrink-0" />
-                                    </a>
-                                  ))}
-                                </div>
-                              </div>
-                            )}
-
-                            {/* Message Action Bar (Copy) */}
-                            {msg.content && (
-                              <div className="pt-2 flex items-center justify-start text-[11px] text-slate-400">
-                                <button
-                                  type="button"
-                                  onClick={() => void handleCopy(msg.id, msg.content)}
-                                  className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-white/[0.04] hover:bg-white/[0.08] border border-white/10 text-slate-300 hover:text-white transition"
-                                >
-                                  {copiedId === msg.id ? (
-                                    <>
-                                      <Check className="w-3.5 h-3.5 text-emerald-400" />
-                                      <span className="text-emerald-300">कॉपी झाले</span>
-                                    </>
-                                  ) : (
-                                    <>
-                                      <Copy className="w-3.5 h-3.5" />
-                                      <span>कॉपी</span>
-                                    </>
-                                  )}
-                                </button>
-                              </div>
-                            )}
-                          </div>
                         )}
                       </div>
                     ))}
-                    <div ref={messagesEndRef} />
                   </div>
+
+                  {/* 4 Clickable Quick Questions */}
+                  <div className="mt-5 pt-4 border-t border-white/[0.07]">
+                    <p className="text-xs font-semibold text-slate-300 mb-2.5">
+                      त्वरित प्रश्न विचारा (Quick Questions):
+                    </p>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                      {activeDept.quickQuestions.map((q) => (
+                        <button
+                          key={q}
+                          type="button"
+                          disabled={isStreaming}
+                          onClick={() => void sendMessage(q)}
+                          className="text-left px-3.5 py-2.5 rounded-xl bg-white/[0.04] hover:bg-[#FF6B00]/15 border border-white/10 hover:border-[#FF6B00]/45 text-xs text-slate-200 hover:text-white transition flex items-start gap-2"
+                        >
+                          <Sparkles className="w-3.5 h-3.5 text-[#FF6B00] shrink-0 mt-0.5" />
+                          <span>{q}</span>
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                </section>
+              )}
+
+              {/* Chat Messages */}
+              <div className="space-y-4 pb-4">
+                {messages.map((msg) => (
+                  <div
+                    key={msg.id}
+                    className={`flex ${msg.role === "user" ? "justify-end" : "justify-start"
+                      } animate-msgIn`}
+                  >
+                    {msg.role === "user" ? (
+                      <div className="max-w-[85%] sm:max-w-[75%] rounded-2xl rounded-br-sm px-4 py-3 bg-gradient-to-br from-[#FF6B00]/25 to-[#f59e0b]/15 border border-[#FF6B00]/40 text-sm text-white shadow-lg">
+                        {msg.content}
+                      </div>
+                    ) : (
+                      <div className="w-full max-w-[95%] sm:max-w-[88%] glass-card rounded-2xl rounded-bl-sm p-4 sm:p-5 border border-white/10 space-y-3">
+                        {/* Verified Source Pill */}
+                        {msg.verifiedSource && (
+                          <div className="flex flex-wrap items-center justify-between gap-2 px-3 py-2 rounded-xl bg-emerald-500/10 border border-emerald-500/30 text-xs">
+                            <div className="flex items-center gap-2 text-emerald-300">
+                              <ShieldCheck className="w-4 h-4 shrink-0" />
+                              <span className="font-semibold">
+                                प्रमाणित स्रोत: {msg.verifiedSource.department}
+                              </span>
+                              <span className="hidden sm:inline text-emerald-400/75">
+                                ({msg.verifiedSource.grReference})
+                              </span>
+                            </div>
+                            <a
+                              href={msg.verifiedSource.officialUrl}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="inline-flex items-center gap-1 text-emerald-200 hover:underline font-medium"
+                            >
+                              अधिकृत पोर्टल
+                              <ExternalLink className="w-3 h-3" />
+                            </a>
+                          </div>
+                        )}
+
+                        {/* Typing indicator or Content */}
+                        {!msg.content && isStreaming ? (
+                          <div className="flex items-center gap-2.5 py-2.5">
+                            <span className="typing-dot" />
+                            <span className="typing-dot" />
+                            <span className="typing-dot" />
+                            <span className="text-xs font-semibold text-orange-200/90 ml-1">
+                              उद्योग साथी AI मार्गदर्शन तयार करत आहे...
+                            </span>
+                          </div>
+                        ) : (
+                          <MarkdownRenderer content={msg.content} />
+                        )}
+
+                        {/* Live Web Grounding Sources */}
+                        {msg.groundingSources && msg.groundingSources.length > 0 && (
+                          <div className="pt-3 border-t border-white/[0.07]">
+                            <p className="text-[11px] font-semibold text-amber-300 mb-2 flex items-center gap-1.5">
+                              <Globe className="w-3.5 h-3.5" />
+                              ताजे संदर्भ / Live Sources (Google Search):
+                            </p>
+                            <div className="flex flex-wrap gap-2">
+                              {msg.groundingSources.map((src) => (
+                                <a
+                                  key={src.url}
+                                  href={src.url}
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                  className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-white/[0.04] hover:bg-white/[0.1] border border-white/10 text-[11px] text-slate-200 transition max-w-full"
+                                >
+                                  <span className="truncate max-w-[210px]">
+                                    {src.title}
+                                  </span>
+                                  <ExternalLink className="w-3 h-3 text-[#FF6B00] shrink-0" />
+                                </a>
+                              ))}
+                            </div>
+                          </div>
+                        )}
+
+                        {/* Hybrid Local Help Card (District Verified Partners + Google Maps Fallback) */}
+                        {msg.content &&
+                          msg.detectedServices &&
+                          msg.detectedServices.length > 0 && (
+                            <LocalHelpCard
+                              partners={servicePartners}
+                              userDistrict={profile?.district}
+                              userName={profile?.name}
+                              detectedServices={msg.detectedServices}
+                            />
+                          )}
+
+                        {/* Message Action Bar (Copy) */}
+                        {msg.content && (
+                          <div className="pt-2 flex items-center justify-start text-[11px] text-slate-400">
+                            <button
+                              type="button"
+                              onClick={() => void handleCopy(msg.id, msg.content)}
+                              className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-white/[0.04] hover:bg-white/[0.08] border border-white/10 text-slate-300 hover:text-white transition"
+                            >
+                              {copiedId === msg.id ? (
+                                <>
+                                  <Check className="w-3.5 h-3.5 text-emerald-400" />
+                                  <span className="text-emerald-300">कॉपी झाले</span>
+                                </>
+                              ) : (
+                                <>
+                                  <Copy className="w-3.5 h-3.5" />
+                                  <span>कॉपी</span>
+                                </>
+                              )}
+                            </button>
+                          </div>
+                        )}
+                      </div>
+                    )}
+                  </div>
+                ))}
+                <div ref={messagesEndRef} />
+              </div>
             </div>
           </div>
 
           {/* Chat Input Bar */}
           <div className="px-4 sm:px-6 py-3.5 border-t border-white/[0.07] bg-[#030712]/80 backdrop-blur-xl">
-              <form
-                onSubmit={(e) => {
-                  e.preventDefault();
-                  void sendMessage(input);
+            <form
+              onSubmit={(e) => {
+                e.preventDefault();
+                void sendMessage(input);
+              }}
+              className="max-w-4xl mx-auto glass-panel rounded-2xl p-2 border border-orange-500/25 flex items-end gap-2"
+            >
+              <textarea
+                rows={1}
+                value={input}
+                onChange={(e) => setInput(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter" && !e.shiftKey) {
+                    e.preventDefault();
+                    void sendMessage(input);
+                  }
                 }}
-                className="max-w-4xl mx-auto glass-panel rounded-2xl p-2 border border-orange-500/25 flex items-end gap-2"
+                placeholder={`${activeDept.title} बद्दल तुमचा प्रश्न विचारा...`}
+                className="flex-1 bg-transparent px-3 py-2 text-sm text-white placeholder-slate-400 focus:outline-none resize-none max-h-28"
+              />
+
+              <VoiceButton
+                disabled={isStreaming}
+                onTranscript={(text) => setInput(text)}
+              />
+
+              <button
+                type="submit"
+                disabled={!input.trim() || isStreaming}
+                className="inline-flex items-center gap-1.5 px-4 h-10 rounded-xl bg-gradient-to-r from-[#FF6B00] to-[#f59e0b] text-white text-xs font-bold shadow-lg shadow-orange-500/25 hover:brightness-110 disabled:opacity-45 transition shrink-0"
               >
-                <textarea
-                  rows={1}
-                  value={input}
-                  onChange={(e) => setInput(e.target.value)}
-                  onKeyDown={(e) => {
-                    if (e.key === "Enter" && !e.shiftKey) {
-                      e.preventDefault();
-                      void sendMessage(input);
-                    }
-                  }}
-                  placeholder={`${activeDept.title} बद्दल तुमचा प्रश्न विचारा...`}
-                  className="flex-1 bg-transparent px-3 py-2 text-sm text-white placeholder-slate-400 focus:outline-none resize-none max-h-28"
-                />
-
-                <VoiceButton
-                  disabled={isStreaming}
-                  onTranscript={(text) => setInput(text)}
-                />
-
-                <button
-                  type="submit"
-                  disabled={!input.trim() || isStreaming}
-                  className="inline-flex items-center gap-1.5 px-4 h-10 rounded-xl bg-gradient-to-r from-[#FF6B00] to-[#f59e0b] text-white text-xs font-bold shadow-lg shadow-orange-500/25 hover:brightness-110 disabled:opacity-45 transition shrink-0"
-                >
-                  <span className="hidden sm:inline">पाठवा</span>
-                  <Send className="w-4 h-4" />
-                </button>
-              </form>
-            </div>
+                <span className="hidden sm:inline">पाठवा</span>
+                <Send className="w-4 h-4" />
+              </button>
+            </form>
+          </div>
         </div>
 
         <ProfileModal

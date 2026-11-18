@@ -1,9 +1,11 @@
-import { EntrepreneurProfile } from "@/types";
+import { EntrepreneurProfile, LocalServicePartner } from "@/types";
+import { SEED_SERVICE_PARTNERS } from "@/data/service-partners";
 
 export const PROFILE_STORAGE_KEY = "udhyogAghadiProfile";
 export const AUTH_STORAGE_KEY = "udhyogAghadiAuth";
 export const PARTICLES_STORAGE_KEY = "udhyogAghadiParticles";
 export const USERS_REGISTRY_KEY = "udhyogAghadiUsersRegistry";
+export const SERVICE_PARTNERS_KEY = "udhyogAghadiServicePartners";
 
 export interface AuthSession {
   role: "entrepreneur" | "admin";
@@ -229,4 +231,63 @@ export function loadAllRegisteredEntrepreneurs(): EntrepreneurProfile[] {
   } catch {
     return SEED_ENTREPRENEURS;
   }
+}
+
+export function loadAllServicePartners(): LocalServicePartner[] {
+  if (typeof window === "undefined") return SEED_SERVICE_PARTNERS;
+  try {
+    const raw = localStorage.getItem(SERVICE_PARTNERS_KEY);
+    if (!raw) {
+      localStorage.setItem(
+        SERVICE_PARTNERS_KEY,
+        JSON.stringify(SEED_SERVICE_PARTNERS)
+      );
+      return SEED_SERVICE_PARTNERS;
+    }
+    const parsed = JSON.parse(raw) as LocalServicePartner[];
+    return Array.isArray(parsed) ? parsed : SEED_SERVICE_PARTNERS;
+  } catch {
+    return SEED_SERVICE_PARTNERS;
+  }
+}
+
+export function saveAllServicePartners(partners: LocalServicePartner[]): void {
+  if (typeof window === "undefined") return;
+  try {
+    localStorage.setItem(SERVICE_PARTNERS_KEY, JSON.stringify(partners));
+  } catch {
+    // ignore
+  }
+}
+
+export function upsertServicePartner(
+  partner: LocalServicePartner
+): LocalServicePartner[] {
+  const existing = loadAllServicePartners();
+  const idx = existing.findIndex((p) => p.id === partner.id);
+  const updated =
+    idx >= 0
+      ? existing.map((p) => (p.id === partner.id ? partner : p))
+      : [partner, ...existing];
+  saveAllServicePartners(updated);
+  return updated;
+}
+
+export function deleteServicePartnerLocal(id: string): LocalServicePartner[] {
+  const existing = loadAllServicePartners();
+  const updated = existing.filter((p) => p.id !== id);
+  saveAllServicePartners(updated);
+  return updated;
+}
+
+export function mergeServicePartners(
+  localList: LocalServicePartner[],
+  remoteList: LocalServicePartner[]
+): LocalServicePartner[] {
+  if (!remoteList || remoteList.length === 0) return localList;
+  const map = new Map<string, LocalServicePartner>();
+  localList.forEach((p) => map.set(p.id, p));
+  // Remote Firestore records take precedence for shared live updates
+  remoteList.forEach((p) => map.set(p.id, p));
+  return Array.from(map.values());
 }

@@ -8,6 +8,7 @@ import {
   Factory,
   LayoutDashboard,
   LogIn,
+  MapPin,
   Menu,
   Send,
   Sparkles,
@@ -121,6 +122,15 @@ export default function HomePage() {
 
             {/* Right Controls */}
             <div className="flex items-center gap-2 sm:gap-2.5">
+              <Link
+                href="/local-help"
+                title="तुमच्या जिल्ह्यातील उद्यम, शॉप ॲक्ट व DPR सल्लागार"
+                className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl bg-emerald-500/10 hover:bg-emerald-500/20 border border-emerald-500/35 text-emerald-200 text-xs font-semibold transition"
+              >
+                <MapPin className="w-3.5 h-3.5 text-emerald-400" />
+                <span className="hidden sm:inline">स्थानिक मदत केंद्रे</span>
+              </Link>
+
               <button
                 type="button"
                 onClick={toggleParticles}
