@@ -2706,5 +2706,653 @@
     "status": "approved",
     "notes": "CSC केंद्र सेवा, आधार सेवा, पॅन कार्ड व शासकीय योजनांचे ऑनलाइन अर्ज",
     "createdAt": "2026-04-15T09:00:00.000Z"
+  },
+  {
+    "id": "ahilyanagar-csc-tarakpur",
+    "name": "Maha E-Seva Kendra & CSC Center तारकपूर",
+    "roleTitle": "महा-ई-सेवा / CSC केंद्र",
+    "division": "नाशिक विभाग",
+    "district": "अहिल्यानगर (Ahilyanagar)",
+    "talukaOrArea": "तारकपूर (बालिकाश्रम रोड), अहिल्यानगर",
+    "address": "बालिकाश्रम रोड, तारकपूर, अहिल्यानगर - 414001",
+    "mobile": "+91 70203-53229",
+    "whatsapp": "7020353229",
+    "services": [
+      "udyam",
+      "shop_act",
+      "fssai_license",
+      "loan_file"
+    ],
+    "verifiedByAghadi": true,
+    "status": "approved",
+    "notes": "उद्यम आधार, शॉप ॲक्ट, आपले सरकार दाखले व शासकीय योजनांचे ऑनलाइन अर्ज",
+    "createdAt": "2026-04-18T10:00:00.000Z"
+  },
+  {
+    "id": "jalgaon-csc-mehrun",
+    "name": "CSC & आपले सरकार सेवा केंद्र (मेहरूण रोड), जळगाव",
+    "roleTitle": "महा-ई-सेवा / CSC केंद्र",
+    "division": "नाशिक विभाग",
+    "district": "जळगाव (Jalgaon)",
+    "talukaOrArea": "जुना मेहरूण रोड (रचना कॉलनी), जळगाव",
+    "address": "प्लॉट क्र. २, जुना मेहरूण रोड, रचना कॉलनी, ईश्वर कॉलनी, जळगाव - 425001",
+    "mobile": "+91 95450-10670",
+    "whatsapp": "9545010670",
+    "services": [
+      "udyam",
+      "shop_act",
+      "fssai_license"
+    ],
+    "verifiedByAghadi": true,
+    "status": "approved",
+    "notes": "उद्यम आधार, शॉप ॲक्ट, आधार/पॅन सेवा व आपले सरकार शासकीय दाखले",
+    "createdAt": "2026-04-18T10:00:00.000Z"
+  },
+  {
+    "id": "dhule-csc-mirachya-maroti",
+    "name": "CSC Center मिरच्या मारुती, धुळे",
+    "roleTitle": "महा-ई-सेवा / CSC केंद्र",
+    "division": "नाशिक विभाग",
+    "district": "धुळे (Dhule)",
+    "talukaOrArea": "मिरच्या मारुती (गल्ली क्र. ५), धुळे",
+    "address": "गल्ली क्र. ५, मिरच्या मारुती, धुळे - 424001",
+    "mobile": "+91 70580-66200",
+    "whatsapp": "7058066200",
+    "services": [
+      "udyam",
+      "shop_act"
+    ],
+    "verifiedByAghadi": true,
+    "status": "approved",
+    "notes": "डिजिटल सेवा, उद्यम आधार, शॉप ॲक्ट, पॅन/आधार अपडेट व सर्व शासकीय प्रमाणपत्रे",
+    "createdAt": "2026-04-18T10:00:00.000Z"
+  },
+  {
+    "id": "latur-csc-swara",
+    "name": "Swara CSC Center (शिवाजी महाराज चौक), लातूर",
+    "roleTitle": "महा-ई-सेवा / CSC केंद्र",
+    "division": "छत्रपती संभाजीनगर विभाग",
+    "district": "लातूर (Latur)",
+    "talukaOrArea": "छत्रपती शिवाजी महाराज चौक, लातूर",
+    "address": "शॉप क्र. ०१, छत्रपती शिवाजी महाराज चौक, कर्मवीर परीक्षा केंद्राजवळ, लातूर - 413531",
+    "mobile": "+91 94237-21641",
+    "whatsapp": "9423721641",
+    "services": [
+      "udyam",
+      "shop_act",
+      "loan_file"
+    ],
+    "verifiedByAghadi": true,
+    "status": "approved",
+    "notes": "उद्यम आधार, शॉप ॲक्ट, शासकीय दाखले व योजनांचे ऑनलाइन अर्ज",
+    "createdAt": "2026-04-18T10:00:00.000Z"
+  },
+  {
+    "id": "nanded-csc-kimaya",
+    "name": "किमया मल्टिसर्व्हिसेस व CSC सेंटर, बोंढार (नांदेड)",
+    "roleTitle": "महा-ई-सेवा / CSC केंद्र",
+    "division": "छत्रपती संभाजीनगर विभाग",
+    "district": "नांदेड (Nanded)",
+    "talukaOrArea": "बोंढार / चिमेगाव रोड, नांदेड",
+    "address": "चिमेगाव रोड, मेन रोड बोंढार, नांदेड - 431605",
+    "mobile": "+91 87884-08299",
+    "whatsapp": "8788408299",
+    "services": [
+      "udyam",
+      "shop_act"
+    ],
+    "verifiedByAghadi": true,
+    "status": "approved",
+    "notes": "महापालिका/जिल्हा नोंदणीकृत CSC केंद्र — उद्यम आधार, शॉप ॲक्ट व शासकीय दाखले",
+    "createdAt": "2026-04-18T10:00:00.000Z"
+  },
+  {
+    "id": "nanded-csc-shivsai",
+    "name": "शिवसाई CSC सेंटर, मालेगाव रोड (नांदेड)",
+    "roleTitle": "महा-ई-सेवा / CSC केंद्र",
+    "division": "छत्रपती संभाजीनगर विभाग",
+    "district": "नांदेड (Nanded)",
+    "talukaOrArea": "चिमेगाव / मालेगाव रोड, नांदेड",
+    "address": "६७, मालेगाव रोड, चिमेगाव, नांदेड - 431605",
+    "mobile": "+91 87664-49122",
+    "whatsapp": "8766449122",
+    "services": [
+      "udyam",
+      "shop_act"
+    ],
+    "verifiedByAghadi": true,
+    "status": "approved",
+    "notes": "अधिकृत CSC केंद्र — उद्यम नोंदणी, शॉप ॲक्ट व ऑनलाइन शासकीय योजना फॉर्म",
+    "createdAt": "2026-04-18T10:00:00.000Z"
+  },
+  {
+    "id": "akola-csc-center-point",
+    "name": "सेंटर पॉईंट सेतू व CSC केंद्र (अकोट फाईल), अकोला",
+    "roleTitle": "महा-ई-सेवा / सेतू / CSC केंद्र",
+    "division": "अमरावती विभाग",
+    "district": "अकोला (Akola)",
+    "talukaOrArea": "अकोट फाईल / इंदिरा नगर, अकोला",
+    "address": "साबरिया चौक, इंदिरा नगर, शिलोडा, वॉर्ड क्र. १, अकोट फाईल, अकोला - 444001",
+    "mobile": "+91 98238-45662",
+    "secondaryPhone": "+91 98606-78702",
+    "whatsapp": "9823845662",
+    "services": [
+      "udyam",
+      "shop_act",
+      "fssai_license"
+    ],
+    "verifiedByAghadi": true,
+    "status": "approved",
+    "notes": "अकोला मनपा अधिकृत सेतू व CSC केंद्र — सर्व दाखले, उद्यम आधार व शॉप ॲक्ट सेवा",
+    "createdAt": "2026-04-18T10:00:00.000Z"
+  },
+  {
+    "id": "akola-csc-mothi-umri",
+    "name": "महा-ई-सेवा व CSC केंद्र, मोठी उमरी (अकोला)",
+    "roleTitle": "महा-ई-सेवा / CSC केंद्र",
+    "division": "अमरावती विभाग",
+    "district": "अकोला (Akola)",
+    "talukaOrArea": "मोठी उमरी (महाकाली नगर), अकोला",
+    "address": "महाकाली नगर, विदर्भ कोकण ग्रामीण बँकेसमोर, मेन रोड, मोठी उमरी, अकोला - 444004",
+    "mobile": "+91 81499-21445",
+    "whatsapp": "8149921445",
+    "services": [
+      "udyam",
+      "shop_act",
+      "loan_file"
+    ],
+    "verifiedByAghadi": true,
+    "status": "approved",
+    "notes": "उद्यम आधार, शॉप ॲक्ट, बँक कागदपत्रे व सर्व शासकीय प्रमाणपत्रे",
+    "createdAt": "2026-04-18T10:00:00.000Z"
+  },
+  {
+    "id": "akola-csc-akot-mgr",
+    "name": "CSC तालुका समन्वय केंद्र, अकोट (अकोला)",
+    "roleTitle": "CSC तालुका व्यवस्थापक / समन्वय कक्ष",
+    "division": "अमरावती विभाग",
+    "district": "अकोला (Akola)",
+    "talukaOrArea": "अकोट तालुका, जि. अकोला",
+    "address": "अकोट तालुका CSC समन्वय कक्ष, जि. अकोला - 444101",
+    "mobile": "+91 99703-60146",
+    "whatsapp": "9970360146",
+    "services": [
+      "udyam",
+      "shop_act"
+    ],
+    "verifiedByAghadi": true,
+    "status": "approved",
+    "notes": "अकोट तालुक्यातील गाव पातळीवरील CSC व महा-ई-सेवा केंद्रांसाठी समन्वय",
+    "createdAt": "2026-04-18T10:00:00.000Z"
+  },
+  {
+    "id": "akola-csc-balapur-mgr",
+    "name": "CSC तालुका समन्वय केंद्र, बाळापूर (अकोला)",
+    "roleTitle": "CSC तालुका व्यवस्थापक / समन्वय कक्ष",
+    "division": "अमरावती विभाग",
+    "district": "अकोला (Akola)",
+    "talukaOrArea": "बाळापूर तालुका, जि. अकोला",
+    "address": "बाळापूर तालुका CSC समन्वय कक्ष, जि. अकोला - 444302",
+    "mobile": "+91 98230-05635",
+    "whatsapp": "9823005635",
+    "services": [
+      "udyam",
+      "shop_act"
+    ],
+    "verifiedByAghadi": true,
+    "status": "approved",
+    "notes": "बाळापूर तालुक्यातील CSC डिजिटल सेवा केंद्रांसाठी मार्गदर्शन व समन्वय",
+    "createdAt": "2026-04-18T10:00:00.000Z"
+  },
+  {
+    "id": "chandrapur-csc-padoli",
+    "name": "आपले सरकार सेवा केंद्र (CSC) पडोली, चंद्रपूर",
+    "roleTitle": "महा-ई-सेवा / CSC केंद्र",
+    "division": "नागपूर विभाग",
+    "district": "चंद्रपूर (Chandrapur)",
+    "talukaOrArea": "पडोली (छोटा नागपूर रोड), चंद्रपूर",
+    "address": "घर क्र. १८६, छोटा नागपूर रोड, पडोली, चंद्रपूर - 442406",
+    "mobile": "+91 94045-36223",
+    "whatsapp": "9404536223",
+    "services": [
+      "udyam",
+      "shop_act"
+    ],
+    "verifiedByAghadi": true,
+    "status": "approved",
+    "notes": "उद्यम आधार, शॉप ॲक्ट, उत्पन्न/जात/अधिवास दाखले व ऑनलाइन अर्ज",
+    "createdAt": "2026-04-18T10:00:00.000Z"
+  },
+  {
+    "id": "palghar-csc-kacheri-road",
+    "name": "Maha E-Seva Kendra कचेरी रोड, पालघर",
+    "roleTitle": "महा-ई-सेवा / CSC केंद्र",
+    "division": "कोकण विभाग",
+    "district": "पालघर (Palghar)",
+    "talukaOrArea": "कचेरी रोड, पालघर शहर",
+    "address": "शॉप क्र. १३, सेंटर पॉईंट गोल्ड बिल्डिंग, कचेरी रोड (अ‍ॅक्सिस बँकेमागे), पालघर - 401404",
+    "mobile": "+91 98227-64241",
+    "whatsapp": "9822764241",
+    "services": [
+      "udyam",
+      "shop_act",
+      "fssai_license"
+    ],
+    "verifiedByAghadi": true,
+    "status": "approved",
+    "notes": "उद्यम आधार, शॉप ॲक्ट, फूड लायसन्स व सर्व आपले सरकार प्रमाणपत्रे",
+    "createdAt": "2026-04-18T10:00:00.000Z"
+  },
+  {
+    "id": "palghar-csc-veoor",
+    "name": "Maha E-Seva Kendra वेऊर, पालघर",
+    "roleTitle": "महा-ई-सेवा / CSC केंद्र",
+    "division": "कोकण विभाग",
+    "district": "पालघर (Palghar)",
+    "talukaOrArea": "वेऊर (हनुमान टेकडी), पालघर",
+    "address": "वेऊर, हनुमान टेकडी, साई मंदिर रोड (HP गॅस गोडाऊनजवळ), पालघर - 401404",
+    "mobile": "+91 98908-84726",
+    "whatsapp": "9890884726",
+    "services": [
+      "udyam",
+      "shop_act"
+    ],
+    "verifiedByAghadi": true,
+    "status": "approved",
+    "notes": "उद्यम आधार, शॉप ॲक्ट, आधार/पॅन व शासकीय योजनांचे ऑनलाइन अर्ज",
+    "createdAt": "2026-04-18T10:00:00.000Z"
+  },
+  {
+    "id": "palghar-csc-virar-suhana",
+    "name": "सुहाना सर्व्हिस सेंटर (CSC केंद्र), विरार पूर्व",
+    "roleTitle": "महा-ई-सेवा / CSC केंद्र",
+    "division": "कोकण विभाग",
+    "district": "पालघर (Palghar)",
+    "talukaOrArea": "विरार पूर्व / वसई (चंदनसार रोड)",
+    "address": "ऑफिस क्र. ०४, रायपाडा, आनंद गोशाळेजवळ, चंदनसार रोड, विरार पूर्व, जि. पालघर - 401305",
+    "mobile": "+91 77097-09243",
+    "whatsapp": "7709709243",
+    "services": [
+      "udyam",
+      "shop_act",
+      "fssai_license",
+      "gst_ca"
+    ],
+    "verifiedByAghadi": true,
+    "status": "approved",
+    "notes": "वसई-विरार व पालघर परिसरासाठी उद्यम आधार, शॉप ॲक्ट, GST व सर्व दाखले",
+    "createdAt": "2026-04-18T10:00:00.000Z"
+  },
+  {
+    "id": "raigad-csc-alibag-mahavir",
+    "name": "महा-ई-सेवा व CSC केंद्र (महावीर चेंबर्स), अलिबाग",
+    "roleTitle": "महा-ई-सेवा / CSC केंद्र",
+    "division": "कोकण विभाग",
+    "district": "रायगड (Raigad)",
+    "talukaOrArea": "अलिबाग शहर (महावीर चेंबर्स)",
+    "address": "महावीर चेंबर्स, अलिबाग मुख्य कार्यालय परिसर, ता. अलिबाग, जि. रायगड - 402201",
+    "mobile": "+91 92263-66635",
+    "whatsapp": "9226366635",
+    "services": [
+      "udyam",
+      "shop_act",
+      "fssai_license"
+    ],
+    "verifiedByAghadi": true,
+    "status": "approved",
+    "notes": "अलिबाग शहर व परिसरासाठी उद्यम नोंदणी, शॉप ॲक्ट व आपले सरकार सेवा",
+    "createdAt": "2026-04-18T10:00:00.000Z"
+  },
+  {
+    "id": "raigad-csc-alibag-urban",
+    "name": "आपले सरकार सेवा केंद्र, अलिबाग शहर",
+    "roleTitle": "महा-ई-सेवा / CSC केंद्र",
+    "division": "कोकण विभाग",
+    "district": "रायगड (Raigad)",
+    "talukaOrArea": "अलिबाग शहर, रायगड",
+    "address": "अलिबाग शहर परिसर, ता. अलिबाग, जि. रायगड - 402201",
+    "mobile": "+91 77410-79016",
+    "whatsapp": "7741079016",
+    "services": [
+      "udyam",
+      "shop_act"
+    ],
+    "verifiedByAghadi": true,
+    "status": "approved",
+    "notes": "सर्व महसूल दाखले, उद्यम आधार, शॉप ॲक्ट व शासकीय योजना फॉर्म",
+    "createdAt": "2026-04-18T10:00:00.000Z"
+  },
+  {
+    "id": "raigad-csc-akshi",
+    "name": "महा-ई-सेवा व CSC केंद्र, अक्षी (अलिबाग)",
+    "roleTitle": "महा-ई-सेवा / CSC केंद्र",
+    "division": "कोकण विभाग",
+    "district": "रायगड (Raigad)",
+    "talukaOrArea": "अक्षी, ता. अलिबाग, रायगड",
+    "address": "गाव अक्षी, ता. अलिबाग, जि. रायगड - 402202",
+    "mobile": "+91 91688-23459",
+    "whatsapp": "9168823459",
+    "services": [
+      "udyam",
+      "shop_act"
+    ],
+    "verifiedByAghadi": true,
+    "status": "approved",
+    "notes": "ग्रामीण व पर्यटन व्यवसाय नोंदणी, उद्यम आधार व शासकीय प्रमाणपत्रे",
+    "createdAt": "2026-04-18T10:00:00.000Z"
+  },
+  {
+    "id": "mumbai-city-csc-parel",
+    "name": "महा-ई-सेवा केंद्र, परळ-भोईवाडा (मुंबई)",
+    "roleTitle": "अधिकृत महा-ई-सेवा / आपले सरकार केंद्र",
+    "division": "कोकण विभाग",
+    "district": "मुंबई शहर (Mumbai City)",
+    "talukaOrArea": "परळ / भोईवाडा",
+    "address": "शॉप क्र. ०३, हरिकुंज बिल्डिंग, सेंट झेवियर स्ट्रीट, नवभारत शाळेजवळ, परळ-भोईवाडा, मुंबई - 400012",
+    "mobile": "+91 93239-93968",
+    "whatsapp": "9323993968",
+    "services": [
+      "udyam",
+      "shop_act",
+      "fssai_license"
+    ],
+    "verifiedByAghadi": true,
+    "status": "approved",
+    "notes": "गुमास्ता (शॉप ॲक्ट), उद्यम आधार, पॅन/आधार व महाराष्ट्र शासन आपले सरकार दाखले",
+    "createdAt": "2026-04-18T10:00:00.000Z"
+  },
+  {
+    "id": "mumbai-city-csc-lalbaug",
+    "name": "महा-ई-सेवा केंद्र, लालबाग (मुंबई)",
+    "roleTitle": "अधिकृत महा-ई-सेवा / आपले सरकार केंद्र",
+    "division": "कोकण विभाग",
+    "district": "मुंबई शहर (Mumbai City)",
+    "talukaOrArea": "लालबाग (डॉ. बाबासाहेब आंबेडकर रोड)",
+    "address": "ऑफिस क्र. १७, आनंदजी लधा बिल्डिंग, डॉ. बी. ए. रोड, लालबाग, मुंबई - 400012",
+    "mobile": "+91 93230-36211",
+    "whatsapp": "9323036211",
+    "services": [
+      "udyam",
+      "shop_act",
+      "fssai_license"
+    ],
+    "verifiedByAghadi": true,
+    "status": "approved",
+    "notes": "गुमास्ता (शॉप ॲक्ट), उद्यम आधार, फूड लायसन्स व आपले सरकार सेवा",
+    "createdAt": "2026-04-18T10:00:00.000Z"
+  },
+  {
+    "id": "mumbai-city-csc-dadar-west",
+    "name": "महा-ई-सेवा केंद्र, दादर पश्चिम (राम मारुती रोड)",
+    "roleTitle": "अधिकृत महा-ई-सेवा / आपले सरकार केंद्र",
+    "division": "कोकण विभाग",
+    "district": "मुंबई शहर (Mumbai City)",
+    "talukaOrArea": "दादर पश्चिम (राम मारुती रोड)",
+    "address": "१४, नवलकर बिल्डिंग, राम मारुती रोड, सीकेपी हॉल समोर, दादर पश्चिम, मुंबई - 400028",
+    "mobile": "+91 98691-56171",
+    "whatsapp": "9869156171",
+    "services": [
+      "udyam",
+      "shop_act",
+      "fssai_license"
+    ],
+    "verifiedByAghadi": true,
+    "status": "approved",
+    "notes": "दादर परिसरासाठी गुमास्ता (शॉप ॲक्ट), उद्यम आधार व शासकीय प्रमाणपत्रे",
+    "createdAt": "2026-04-18T10:00:00.000Z"
+  },
+  {
+    "id": "mumbai-city-csc-dadar-east",
+    "name": "महा-ई-सेवा केंद्र, हिंदमाता (दादर पूर्व)",
+    "roleTitle": "अधिकृत महा-ई-सेवा / आपले सरकार केंद्र",
+    "division": "कोकण विभाग",
+    "district": "मुंबई शहर (Mumbai City)",
+    "talukaOrArea": "दादर पूर्व (हिंदमाता)",
+    "address": "अग्रवाल निवास, रूम क्र. १४, सेंट पॉल स्ट्रीट, हिंदमाता, दादर पूर्व, मुंबई - 400014",
+    "mobile": "+91 98670-75033",
+    "whatsapp": "9867075033",
+    "services": [
+      "udyam",
+      "shop_act"
+    ],
+    "verifiedByAghadi": true,
+    "status": "approved",
+    "notes": "उद्यम आधार, शॉप ॲक्ट व आपले सरकार पोर्टल सेवा",
+    "createdAt": "2026-04-18T10:00:00.000Z"
+  },
+  {
+    "id": "mumbai-city-csc-worli",
+    "name": "तुळजाभवानी एंटरप्रायझेस (आपले सरकार सेवा केंद्र), वरळी",
+    "roleTitle": "अधिकृत महा-ई-सेवा / आपले सरकार केंद्र",
+    "division": "कोकण विभाग",
+    "district": "मुंबई शहर (Mumbai City)",
+    "talukaOrArea": "वरळी (कस्तुरबा गांधी नगर)",
+    "address": "शॉप क्र. ७, तळमजला, ए विंग, परळ शिवनेरी सोसायटी, दैनिक शिवनेर मार्ग, वरळी, मुंबई - 400018",
+    "mobile": "+91 98929-20688",
+    "whatsapp": "9892920688",
+    "services": [
+      "udyam",
+      "shop_act",
+      "fssai_license"
+    ],
+    "verifiedByAghadi": true,
+    "status": "approved",
+    "notes": "गुमास्ता लायसन्स, उद्यम आधार, फूड लायसन्स व सर्व शासकीय दाखले",
+    "createdAt": "2026-04-18T10:00:00.000Z"
+  },
+  {
+    "id": "mumbai-city-csc-lower-parel",
+    "name": "आपले सरकार सेवा केंद्र, लोअर परळ (सेनापती बापट मार्ग)",
+    "roleTitle": "अधिकृत महा-ई-सेवा / आपले सरकार केंद्र",
+    "division": "कोकण विभाग",
+    "district": "मुंबई शहर (Mumbai City)",
+    "talukaOrArea": "लोअर परळ",
+    "address": "०३ तुलसी बिल्डिंग, सेनापती बापट मार्ग, केवल इंडस्ट्रीजवळ, लोअर परळ, मुंबई - 400013",
+    "mobile": "+91 98696-28276",
+    "whatsapp": "9869628276",
+    "services": [
+      "udyam",
+      "shop_act"
+    ],
+    "verifiedByAghadi": true,
+    "status": "approved",
+    "notes": "व्यावसायिक गुमास्ता, उद्यम नोंदणी व आपले सरकार सेवा",
+    "createdAt": "2026-04-18T10:00:00.000Z"
+  },
+  {
+    "id": "gadchiroli-csc-ward19",
+    "name": "महा-ई-सेवा व CSC केंद्र (वॉर्ड क्र. १९), गडचिरोली",
+    "roleTitle": "महा-ई-सेवा / CSC केंद्र",
+    "division": "नागपूर विभाग",
+    "district": "गडचिरोली (Gadchiroli)",
+    "talukaOrArea": "वॉर्ड क्र. १९, गडचिरोली शहर",
+    "address": "जिलानीबाबा दर्ग्याजवळ, वॉर्ड क्र. १९, गडचिरोली - 442605",
+    "mobile": "+91 93257-14738",
+    "whatsapp": "9325714738",
+    "services": [
+      "udyam",
+      "shop_act"
+    ],
+    "verifiedByAghadi": true,
+    "status": "approved",
+    "notes": "उद्यम आधार, शॉप ॲक्ट, सर्व महसूल दाखले व शासकीय योजना फॉर्म",
+    "createdAt": "2026-04-18T10:00:00.000Z"
+  },
+  {
+    "id": "nandurbar-csc-dm",
+    "name": "CSC जिल्हा समन्वय कक्ष, नंदुरबार",
+    "roleTitle": "अधिकृत CSC जिल्हा व्यवस्थापक (District Manager)",
+    "division": "नाशिक विभाग",
+    "district": "नंदुरबार (Nandurbar)",
+    "talukaOrArea": "नंदुरबार जिल्हा मुख्यालय",
+    "address": "CSC जिल्हा समन्वय कार्यालय, नंदुरबार - 425412",
+    "mobile": "+91 70489-94084",
+    "secondaryPhone": "+91 70117-46538",
+    "whatsapp": "7048994084",
+    "email": "csc.nandurbar.dm11@gmail.com",
+    "services": [
+      "udyam",
+      "shop_act",
+      "loan_file"
+    ],
+    "verifiedByAghadi": true,
+    "status": "approved",
+    "notes": "नंदुरबार, शहादा व तळोदा तालुक्यातील CSC केंद्रे व उद्यम नोंदणी मदतीसाठी जिल्हा समन्वय",
+    "createdAt": "2026-04-18T10:00:00.000Z"
+  },
+  {
+    "id": "washim-csc-jay-bhole",
+    "name": "जय भोले मल्टिसर्व्हिसेस (CSC / महा-ई-सेवा केंद्र), वाशिम",
+    "roleTitle": "महा-ई-सेवा / CSC केंद्र",
+    "division": "अमरावती विभाग",
+    "district": "वाशिम (Washim)",
+    "talukaOrArea": "पाटणी चौक, वाशिम शहर",
+    "address": "शिवाजी हायस्कूलजवळ, पाटणी चौक, वाशिम - 444505",
+    "mobile": "+91 89752-47005",
+    "secondaryPhone": "+91 88303-55693",
+    "whatsapp": "8975247005",
+    "services": [
+      "udyam",
+      "shop_act",
+      "loan_file"
+    ],
+    "verifiedByAghadi": true,
+    "status": "approved",
+    "notes": "CSC सेवा, उद्यम आधार, शॉप ॲक्ट, बँकिंग व सर्व शासकीय योजना नोंदणी",
+    "createdAt": "2026-04-18T10:00:00.000Z"
+  },
+  {
+    "id": "washim-csc-karanja",
+    "name": "महा-ई-सेवा व CSC केंद्र, कारंजा लाड (वाशिम)",
+    "roleTitle": "महा-ई-सेवा / CSC केंद्र",
+    "division": "अमरावती विभाग",
+    "district": "वाशिम (Washim)",
+    "talukaOrArea": "कारंजा लाड (तहसील ऑफिसजवळ)",
+    "address": "तहसील कार्यालयाजवळ, कारंजा लाड, जि. वाशिम - 444105",
+    "mobile": "+91 97655-12924",
+    "whatsapp": "9765512924",
+    "services": [
+      "udyam",
+      "shop_act"
+    ],
+    "verifiedByAghadi": true,
+    "status": "approved",
+    "notes": "कारंजा लाड परिसरासाठी उद्यम नोंदणी, शॉप ॲक्ट व महसूल दाखले",
+    "createdAt": "2026-04-18T10:00:00.000Z"
+  },
+  {
+    "id": "washim-csc-risod",
+    "name": "महा-ई-सेवा व CSC केंद्र, केनवड / रिसोड (वाशिम)",
+    "roleTitle": "महा-ई-सेवा / CSC केंद्र",
+    "division": "अमरावती विभाग",
+    "district": "वाशिम (Washim)",
+    "talukaOrArea": "रिसोड तालुका (केनवड)",
+    "address": "मु. पो. केनवड, ता. रिसोड, जि. वाशिम - 444503",
+    "mobile": "+91 82752-19479",
+    "whatsapp": "8275219479",
+    "services": [
+      "udyam",
+      "shop_act"
+    ],
+    "verifiedByAghadi": true,
+    "status": "approved",
+    "notes": "रिसोड तालुक्यासाठी ग्रामीण महा-ई-सेवा, उद्यम आधार व शासकीय अर्ज",
+    "createdAt": "2026-04-18T10:00:00.000Z"
+  },
+  {
+    "id": "washim-csc-malegaon",
+    "name": "महा-ई-सेवा व CSC केंद्र, मालेगाव (वाशिम)",
+    "roleTitle": "महा-ई-सेवा / CSC केंद्र",
+    "division": "अमरावती विभाग",
+    "district": "वाशिम (Washim)",
+    "talukaOrArea": "मालेगाव तालुका (जुना बस स्टँड)",
+    "address": "जुन्या बस स्टँडजवळ, मालेगाव, जि. वाशिम - 444503",
+    "mobile": "+91 98503-71671",
+    "whatsapp": "9850371671",
+    "services": [
+      "udyam",
+      "shop_act"
+    ],
+    "verifiedByAghadi": true,
+    "status": "approved",
+    "notes": "मालेगाव तालुक्यासाठी सर्व शासकीय दाखले, उद्यम आधार व ऑनलाइन सेवा",
+    "createdAt": "2026-04-18T10:00:00.000Z"
+  },
+  {
+    "id": "jalna-csc-umesh",
+    "name": "उमेश मल्टिसर्व्हिस व CSC सेंटर (भीमनगर), जालना",
+    "roleTitle": "महा-ई-सेवा / CSC केंद्र",
+    "division": "छत्रपती संभाजीनगर विभाग",
+    "district": "जालना (Jalna)",
+    "talukaOrArea": "भीमनगर, जालना शहर",
+    "address": "डॉ. आंबेडकर पुतळ्याजवळ, भीमनगर, जालना - 431203",
+    "mobile": "+91 80877-78007",
+    "whatsapp": "8087778007",
+    "services": [
+      "udyam",
+      "shop_act"
+    ],
+    "verifiedByAghadi": true,
+    "status": "approved",
+    "notes": "उद्यम आधार, शॉप ॲक्ट, आधार/पॅन व सर्व शासकीय प्रमाणपत्रे",
+    "createdAt": "2026-04-18T10:00:00.000Z"
+  },
+  {
+    "id": "jalna-csc-new-mondha",
+    "name": "महा-ई-सेवा व CSC केंद्र (न्यू मोंढा), जालना",
+    "roleTitle": "महा-ई-सेवा / CSC केंद्र",
+    "division": "छत्रपती संभाजीनगर विभाग",
+    "district": "जालना (Jalna)",
+    "talukaOrArea": "न्यू मोंढा / काद्राबाद, जालना",
+    "address": "न्यू मोंढा / काद्राबाद परिसर, जालना - 431203",
+    "mobile": "+91 98235-86333",
+    "secondaryPhone": "+91 98239-69647",
+    "whatsapp": "9823586333",
+    "services": [
+      "udyam",
+      "shop_act",
+      "fssai_license"
+    ],
+    "verifiedByAghadi": true,
+    "status": "approved",
+    "notes": "जालना बाजारपेठ परिसरासाठी शॉप ॲक्ट, उद्यम आधार व ऑनलाइन शासकीय सेवा",
+    "createdAt": "2026-04-18T10:00:00.000Z"
+  },
+  {
+    "id": "beed-setu-collector",
+    "name": "जिल्हा सेतू व आपले सरकार समन्वय कक्ष, बीड",
+    "roleTitle": "अधिकृत जिल्हा सेतू / महा-ई-सेवा समन्वय",
+    "division": "छत्रपती संभाजीनगर विभाग",
+    "district": "बीड (Beed)",
+    "talukaOrArea": "जिल्हाधिकारी कार्यालय परिसर, बीड",
+    "address": "जिल्हाधिकारी कार्यालय (निवासी उपजिल्हाधिकारी सेतू कक्ष), बीड - 431122",
+    "mobile": "(02442) 222-604",
+    "services": [
+      "udyam",
+      "shop_act"
+    ],
+    "verifiedByAghadi": true,
+    "status": "approved",
+    "notes": "बीड जिल्ह्यातील सर्व महा-ई-सेवा / आपले सरकार केंद्रांची यादी व तक्रार निवारण (setusamitibeed.in)",
+    "createdAt": "2026-04-18T10:00:00.000Z"
+  },
+  {
+    "id": "dharashiv-setu-collector",
+    "name": "जिल्हा सेतू व आपले सरकार समन्वय कक्ष, धाराशिव",
+    "roleTitle": "अधिकृत जिल्हा सेतू / महा-ई-सेवा समन्वय",
+    "division": "छत्रपती संभाजीनगर विभाग",
+    "district": "धाराशिव (Dharashiv)",
+    "talukaOrArea": "जिल्हाधिकारी कार्यालय परिसर, धाराशिव",
+    "address": "जिल्हाधिकारी कार्यालय (सेतू कक्ष), धाराशिव (उस्मानाबाद) - 413501",
+    "mobile": "(02472) 224-501",
+    "secondaryPhone": "(02472) 227-301",
+    "services": [
+      "udyam",
+      "shop_act"
+    ],
+    "verifiedByAghadi": true,
+    "status": "approved",
+    "notes": "धाराशिव जिल्ह्यातील सर्व तालुका महा-ई-सेवा / CSC केंद्रांसाठी अधिकृत समन्वय (dharashiv.gov.in)",
+    "createdAt": "2026-04-18T10:00:00.000Z"
   }
 ]

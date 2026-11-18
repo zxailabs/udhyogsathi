@@ -7,7 +7,7 @@ export const PARTICLES_STORAGE_KEY = "udhyogAghadiParticles";
 export const USERS_REGISTRY_KEY = "udhyogAghadiUsersRegistry";
 export const SERVICE_PARTNERS_KEY = "udhyogAghadiServicePartners";
 export const SERVICE_PARTNERS_VERSION_KEY = "udhyogAghadiServicePartnersVersion";
-export const CURRENT_PARTNERS_SEED_VERSION = "v2-maharashtra-134";
+export const CURRENT_PARTNERS_SEED_VERSION = "v3-maharashtra-167";
 
 export interface AuthSession {
   role: "entrepreneur" | "admin";
