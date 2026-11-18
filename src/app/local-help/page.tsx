@@ -9,6 +9,8 @@ import {
   Building2,
   CheckCircle2,
   ExternalLink,
+  Globe,
+  Mail,
   MapPin,
   MessageCircle,
   Navigation,
@@ -21,12 +23,14 @@ import { AmbientBackground } from "@/components/AmbientBackground";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
 import { ServicePartnerModal } from "@/components/ServicePartnerModal";
 import { MAHARASHTRA_DISTRICTS } from "@/data/departments";
+import { OFFICIAL_VILLAGE_LOCATORS } from "@/data/official-locators";
 import {
   buildGoogleMapsSearchUrl,
   buildPartnerMapsUrl,
   buildTelUrl,
   buildWhatsAppUrl,
   getDistrictMarathiName,
+  getPartnerWhatsAppNumber,
   getServiceCategoryInfo,
   SERVICE_CATEGORIES,
 } from "@/lib/local-help";
@@ -286,102 +290,130 @@ function LocalHelpContent() {
 
             {filteredPartners.length > 0 ? (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                {filteredPartners.map((partner) => (
-                  <div
-                    key={partner.id}
-                    className="glass-card rounded-2xl p-4 sm:p-5 border border-white/10 hover:border-orange-500/35 flex flex-col justify-between gap-4 transition"
-                  >
-                    <div className="space-y-2.5">
-                      <div className="flex items-start justify-between gap-2">
-                        <div className="min-w-0">
-                          <h3 className="text-sm sm:text-base font-bold text-white leading-snug">
-                            {partner.name}
-                          </h3>
-                          <p className="text-xs text-orange-300 font-medium mt-0.5">
-                            {partner.roleTitle}
-                          </p>
-                        </div>
-                        {partner.verifiedByAghadi && (
-                          <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-emerald-500/15 border border-emerald-500/35 text-[10px] font-bold text-emerald-300 shrink-0">
-                            <BadgeCheck className="w-3 h-3" />
-                            प्रमाणित
-                          </span>
-                        )}
-                      </div>
-
-                      <div className="space-y-1 text-xs text-slate-300">
-                        <p className="flex items-center gap-1.5 text-slate-200 font-semibold">
-                          <Building2 className="w-3.5 h-3.5 text-[#FF6B00] shrink-0" />
-                          <span>
-                            {getDistrictMarathiName(partner.district)} •{" "}
-                            {partner.talukaOrArea}
-                          </span>
-                        </p>
-                        <p className="flex items-start gap-1.5 text-slate-400">
-                          <MapPin className="w-3.5 h-3.5 text-slate-500 shrink-0 mt-0.5" />
-                          <span>{partner.address}</span>
-                        </p>
-                      </div>
-
-                      <div className="flex flex-wrap gap-1.5 pt-1">
-                        {partner.services.map((svcId) => {
-                          const meta = getServiceCategoryInfo(svcId);
-                          return (
-                            <span
-                              key={svcId}
-                              className={`text-[10px] font-semibold px-2 py-0.5 rounded-md border ${meta.colorClass}`}
-                            >
-                              {meta.shortLabel}
+                {filteredPartners.map((partner) => {
+                  const waNumber = getPartnerWhatsAppNumber(partner);
+                  return (
+                    <div
+                      key={partner.id}
+                      className="glass-card rounded-2xl p-4 sm:p-5 border border-white/10 hover:border-orange-500/35 flex flex-col justify-between gap-4 transition"
+                    >
+                      <div className="space-y-2.5">
+                        <div className="flex items-start justify-between gap-2">
+                          <div className="min-w-0">
+                            <h3 className="text-sm sm:text-base font-bold text-white leading-snug">
+                              {partner.name}
+                            </h3>
+                            <p className="text-xs text-orange-300 font-medium mt-0.5">
+                              {partner.roleTitle}
+                            </p>
+                          </div>
+                          {partner.verifiedByAghadi && (
+                            <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-emerald-500/15 border border-emerald-500/35 text-[10px] font-bold text-emerald-300 shrink-0">
+                              <BadgeCheck className="w-3 h-3" />
+                              प्रमाणित
                             </span>
-                          );
-                        })}
+                          )}
+                        </div>
+
+                        <div className="space-y-1 text-xs text-slate-300">
+                          <p className="flex items-center gap-1.5 text-slate-200 font-semibold">
+                            <Building2 className="w-3.5 h-3.5 text-[#FF6B00] shrink-0" />
+                            <span>
+                              {getDistrictMarathiName(partner.district)} •{" "}
+                              {partner.talukaOrArea}
+                            </span>
+                          </p>
+                          <p className="flex items-start gap-1.5 text-slate-400">
+                            <MapPin className="w-3.5 h-3.5 text-slate-500 shrink-0 mt-0.5" />
+                            <span>{partner.address}</span>
+                          </p>
+                          <p className="flex items-center gap-1.5 text-slate-200 font-space text-[11px] font-semibold pt-0.5">
+                            <Phone className="w-3.5 h-3.5 text-orange-400 shrink-0" />
+                            <span>
+                              {partner.mobile}
+                              {partner.secondaryPhone
+                                ? ` | ${partner.secondaryPhone}`
+                                : ""}
+                            </span>
+                          </p>
+                          {partner.email && (
+                            <p className="flex items-center gap-1.5 text-indigo-300/90 font-space text-[11px] truncate">
+                              <Mail className="w-3.5 h-3.5 shrink-0" />
+                              <span className="truncate">{partner.email}</span>
+                            </p>
+                          )}
+                        </div>
+
+                        <div className="flex flex-wrap gap-1.5 pt-1">
+                          {partner.services.map((svcId) => {
+                            const meta = getServiceCategoryInfo(svcId);
+                            return (
+                              <span
+                                key={svcId}
+                                className={`text-[10px] font-semibold px-2 py-0.5 rounded-md border ${meta.colorClass}`}
+                              >
+                                {meta.shortLabel}
+                              </span>
+                            );
+                          })}
+                        </div>
+
+                        {partner.notes && (
+                          <p className="text-[11px] text-slate-400 bg-white/[0.03] border border-white/[0.06] rounded-lg px-2.5 py-2 leading-relaxed">
+                            {partner.notes}
+                          </p>
+                        )}
                       </div>
 
-                      {partner.notes && (
-                        <p className="text-[11px] text-slate-400 bg-white/[0.03] border border-white/[0.06] rounded-lg px-2.5 py-2 leading-relaxed">
-                          {partner.notes}
-                        </p>
-                      )}
+                      {/* Direct Action Buttons */}
+                      <div className="flex items-center gap-2 pt-3 border-t border-white/[0.07]">
+                        <a
+                          href={buildTelUrl(partner.mobile)}
+                          className="flex-1 inline-flex items-center justify-center gap-1.5 py-2 rounded-xl bg-gradient-to-r from-[#FF6B00] to-[#f59e0b] text-white text-xs font-bold hover:brightness-110 transition"
+                        >
+                          <Phone className="w-3.5 h-3.5" />
+                          <span>कॉल</span>
+                        </a>
+                        {waNumber ? (
+                          <a
+                            href={buildWhatsAppUrl(
+                              waNumber,
+                              partner.name,
+                              selectedService !== "all"
+                                ? getServiceCategoryInfo(selectedService).label
+                                : undefined,
+                              profile?.name,
+                              partner.district
+                            )}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="flex-1 inline-flex items-center justify-center gap-1.5 py-2 rounded-xl bg-emerald-500/15 hover:bg-emerald-500/25 border border-emerald-500/35 text-emerald-300 text-xs font-bold transition"
+                          >
+                            <MessageCircle className="w-3.5 h-3.5" />
+                            <span>WhatsApp</span>
+                          </a>
+                        ) : partner.email ? (
+                          <a
+                            href={`mailto:${partner.email}`}
+                            className="flex-1 inline-flex items-center justify-center gap-1.5 py-2 rounded-xl bg-indigo-500/15 hover:bg-indigo-500/25 border border-indigo-500/35 text-indigo-200 text-xs font-bold transition"
+                          >
+                            <Mail className="w-3.5 h-3.5" />
+                            <span>ईमेल</span>
+                          </a>
+                        ) : null}
+                        <a
+                          href={buildPartnerMapsUrl(partner)}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="flex-1 inline-flex items-center justify-center gap-1 py-2 rounded-xl bg-white/[0.06] hover:bg-white/[0.12] border border-white/15 text-slate-200 text-xs font-semibold transition"
+                        >
+                          <Navigation className="w-3.5 h-3.5 text-sky-400" />
+                          <span>लोकेशन</span>
+                        </a>
+                      </div>
                     </div>
-
-                    {/* Direct Action Buttons */}
-                    <div className="grid grid-cols-3 gap-2 pt-3 border-t border-white/[0.07]">
-                      <a
-                        href={buildTelUrl(partner.mobile)}
-                        className="inline-flex items-center justify-center gap-1.5 py-2 rounded-xl bg-gradient-to-r from-[#FF6B00] to-[#f59e0b] text-white text-xs font-bold hover:brightness-110 transition"
-                      >
-                        <Phone className="w-3.5 h-3.5" />
-                        <span>कॉल</span>
-                      </a>
-                      <a
-                        href={buildWhatsAppUrl(
-                          partner.whatsapp || partner.mobile,
-                          partner.name,
-                          selectedService !== "all"
-                            ? getServiceCategoryInfo(selectedService).label
-                            : undefined,
-                          profile?.name,
-                          partner.district
-                        )}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="inline-flex items-center justify-center gap-1.5 py-2 rounded-xl bg-emerald-500/15 hover:bg-emerald-500/25 border border-emerald-500/35 text-emerald-300 text-xs font-bold transition"
-                      >
-                        <MessageCircle className="w-3.5 h-3.5" />
-                        <span>WhatsApp</span>
-                      </a>
-                      <a
-                        href={buildPartnerMapsUrl(partner)}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="inline-flex items-center justify-center gap-1 py-2 rounded-xl bg-white/[0.06] hover:bg-white/[0.12] border border-white/15 text-slate-200 text-xs font-semibold transition"
-                      >
-                        <Navigation className="w-3.5 h-3.5 text-sky-400" />
-                        <span>लोकेशन</span>
-                      </a>
-                    </div>
-                  </div>
-                ))}
+                  );
+                })}
               </div>
             ) : (
               <div className="glass-card rounded-2xl p-6 border border-white/10 text-center space-y-3">
@@ -468,6 +500,61 @@ function LocalHelpContent() {
                     <ExternalLink className="w-3 h-3" />
                   </span>
                 </a>
+              ))}
+            </div>
+          </section>
+
+          {/* Official Village-Level Locators & Bank Saathi Helplines */}
+          <section className="glass-card rounded-2xl p-5 sm:p-6 border border-white/10 space-y-4">
+            <div>
+              <h2 className="text-sm sm:text-base font-bold text-white flex items-center gap-2">
+                <Globe className="w-4 h-4 text-emerald-400" />
+                <span>
+                  गाव-निहाय अधिकृत केंद्र लोकेटर व बँक साथी हेल्पलाईन (आपले सरकार / CSC / UMED)
+                </span>
+              </h2>
+              <p className="text-xs text-slate-400 mt-0.5">
+                तुमच्या गावातील महा-ई-सेवा, CSC केंद्र, बँक सखी (UMED) किंवा बँक मित्र शोधण्यासाठी अधिकृत पोर्टल व टोल-फ्री क्रमांक
+              </p>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+              {OFFICIAL_VILLAGE_LOCATORS.map((loc) => (
+                <div
+                  key={loc.id}
+                  className="rounded-xl bg-white/[0.03] border border-white/[0.08] p-3.5 flex flex-col justify-between gap-2.5"
+                >
+                  <div className="space-y-1">
+                    <h3 className="text-xs sm:text-sm font-bold text-white">
+                      {loc.title}
+                    </h3>
+                    <p className="text-[11px] text-orange-300/90 font-medium">
+                      {loc.agency}
+                    </p>
+                    <p className="text-[11px] text-slate-300 leading-relaxed">
+                      {loc.services}
+                    </p>
+                    <p className="text-[11px] text-slate-400 leading-relaxed pt-0.5">
+                      <strong className="text-slate-300">कसे शोधायचे:</strong>{" "}
+                      {loc.howToFind}
+                    </p>
+                  </div>
+
+                  <div className="flex items-center justify-between gap-2 pt-2 border-t border-white/[0.06] text-[11px]">
+                    <span className="font-space text-emerald-300 font-semibold truncate">
+                      📞 {loc.helpline}
+                    </span>
+                    <a
+                      href={loc.portalUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center gap-1 text-orange-300 hover:text-orange-200 font-semibold shrink-0"
+                    >
+                      पोर्टल उघडा
+                      <ExternalLink className="w-3 h-3" />
+                    </a>
+                  </div>
+                </div>
               ))}
             </div>
           </section>

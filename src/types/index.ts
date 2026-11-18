@@ -93,11 +93,14 @@ export interface LocalServicePartner {
   id: string;
   name: string;
   roleTitle: string;
+  division?: string;
   district: string;
   talukaOrArea: string;
   address: string;
   mobile: string;
+  secondaryPhone?: string;
   whatsapp?: string;
+  email?: string;
   googleMapsUrl?: string;
   services: ServiceCategory[];
   verifiedByAghadi: boolean;

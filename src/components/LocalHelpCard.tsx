@@ -5,6 +5,7 @@ import Link from "next/link";
 import {
   BadgeCheck,
   ExternalLink,
+  Mail,
   MapPin,
   MessageCircle,
   Navigation,
@@ -18,6 +19,7 @@ import {
   buildTelUrl,
   buildWhatsAppUrl,
   getDistrictMarathiName,
+  getPartnerWhatsAppNumber,
   getServiceCategoryInfo,
   matchLocalPartners,
 } from "@/lib/local-help";
@@ -52,6 +54,7 @@ export function LocalHelpCard({
 
   const districtMarathi = getDistrictMarathiName(selectedDistrict);
   const topPartners = matchedPartners.slice(0, 2);
+  const remainingCount = Math.max(0, matchedPartners.length - topPartners.length);
 
   return (
     <div className="mt-3 pt-3 border-t border-white/[0.08]">
@@ -96,90 +99,108 @@ export function LocalHelpCard({
         {/* Verified Partners List (Layer 1 of Hybrid Model) */}
         {topPartners.length > 0 ? (
           <div className="grid grid-cols-1 md:grid-cols-2 gap-2.5">
-            {topPartners.map((partner) => (
-              <div
-                key={partner.id}
-                className="rounded-xl bg-white/[0.04] border border-white/10 p-3 flex flex-col justify-between gap-2.5 hover:border-orange-500/35 transition"
-              >
-                <div className="space-y-1.5">
-                  <div className="flex items-start justify-between gap-2">
-                    <div className="min-w-0">
-                      <p className="text-xs sm:text-sm font-bold text-white leading-snug">
-                        {partner.name}
-                      </p>
-                      <p className="text-[11px] text-orange-300/90 font-medium">
-                        {partner.roleTitle}
-                      </p>
-                    </div>
-                    {partner.verifiedByAghadi && (
-                      <span
-                        title="भाजप उद्योग आघाडी प्रमाणित"
-                        className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-emerald-500/15 border border-emerald-500/35 text-[10px] font-semibold text-emerald-300 shrink-0"
-                      >
-                        <BadgeCheck className="w-3 h-3" />
-                        प्रमाणित
-                      </span>
-                    )}
-                  </div>
-
-                  <p className="text-[11px] text-slate-300 flex items-start gap-1.5">
-                    <MapPin className="w-3.5 h-3.5 text-slate-400 shrink-0 mt-0.5" />
-                    <span>
-                      <strong>{partner.talukaOrArea}</strong> — {partner.address}
-                    </span>
-                  </p>
-
-                  <div className="flex flex-wrap gap-1 pt-0.5">
-                    {partner.services.slice(0, 4).map((svcId) => {
-                      const meta = getServiceCategoryInfo(svcId);
-                      return (
+            {topPartners.map((partner) => {
+              const waNumber = getPartnerWhatsAppNumber(partner);
+              return (
+                <div
+                  key={partner.id}
+                  className="rounded-xl bg-white/[0.04] border border-white/10 p-3 flex flex-col justify-between gap-2.5 hover:border-orange-500/35 transition"
+                >
+                  <div className="space-y-1.5">
+                    <div className="flex items-start justify-between gap-2">
+                      <div className="min-w-0">
+                        <p className="text-xs sm:text-sm font-bold text-white leading-snug">
+                          {partner.name}
+                        </p>
+                        <p className="text-[11px] text-orange-300/90 font-medium">
+                          {partner.roleTitle}
+                        </p>
+                      </div>
+                      {partner.verifiedByAghadi && (
                         <span
-                          key={svcId}
-                          className={`text-[10px] px-1.5 py-0.5 rounded border ${meta.colorClass}`}
+                          title="सत्यापित सेवा केंद्र"
+                          className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-emerald-500/15 border border-emerald-500/35 text-[10px] font-semibold text-emerald-300 shrink-0"
                         >
-                          {meta.shortLabel}
+                          <BadgeCheck className="w-3 h-3" />
+                          प्रमाणित
                         </span>
-                      );
-                    })}
+                      )}
+                    </div>
+
+                    <p className="text-[11px] text-slate-300 flex items-start gap-1.5">
+                      <MapPin className="w-3.5 h-3.5 text-slate-400 shrink-0 mt-0.5" />
+                      <span>
+                        <strong>{partner.talukaOrArea}</strong> — {partner.address}
+                      </span>
+                    </p>
+
+                    <p className="text-[11px] text-slate-200 font-space font-semibold">
+                      📞 {partner.mobile}
+                      {partner.secondaryPhone ? ` / ${partner.secondaryPhone}` : ""}
+                    </p>
+
+                    <div className="flex flex-wrap gap-1 pt-0.5">
+                      {partner.services.slice(0, 4).map((svcId) => {
+                        const meta = getServiceCategoryInfo(svcId);
+                        return (
+                          <span
+                            key={svcId}
+                            className={`text-[10px] px-1.5 py-0.5 rounded border ${meta.colorClass}`}
+                          >
+                            {meta.shortLabel}
+                          </span>
+                        );
+                      })}
+                    </div>
+                  </div>
+
+                  {/* Call / WhatsApp or Email / Location Buttons */}
+                  <div className="flex flex-wrap items-center gap-1.5 pt-1 border-t border-white/[0.06]">
+                    <a
+                      href={buildTelUrl(partner.mobile)}
+                      className="flex-1 min-w-[85px] inline-flex items-center justify-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-gradient-to-r from-[#FF6B00] to-[#f59e0b] text-white text-[11px] font-bold hover:brightness-110 transition"
+                    >
+                      <Phone className="w-3.5 h-3.5" />
+                      <span>कॉल करा</span>
+                    </a>
+                    {waNumber ? (
+                      <a
+                        href={buildWhatsAppUrl(
+                          waNumber,
+                          partner.name,
+                          primaryServiceMeta?.label,
+                          userName,
+                          selectedDistrict
+                        )}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="flex-1 min-w-[95px] inline-flex items-center justify-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-emerald-500/15 hover:bg-emerald-500/25 border border-emerald-500/35 text-emerald-300 text-[11px] font-bold transition"
+                      >
+                        <MessageCircle className="w-3.5 h-3.5" />
+                        <span>WhatsApp</span>
+                      </a>
+                    ) : partner.email ? (
+                      <a
+                        href={`mailto:${partner.email}`}
+                        className="flex-1 min-w-[90px] inline-flex items-center justify-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-indigo-500/15 hover:bg-indigo-500/25 border border-indigo-500/35 text-indigo-200 text-[11px] font-bold transition"
+                      >
+                        <Mail className="w-3.5 h-3.5" />
+                        <span>ईमेल</span>
+                      </a>
+                    ) : null}
+                    <a
+                      href={buildPartnerMapsUrl(partner)}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center justify-center gap-1 px-2.5 py-1.5 rounded-lg bg-white/[0.06] hover:bg-white/[0.12] border border-white/15 text-slate-200 text-[11px] font-semibold transition"
+                    >
+                      <Navigation className="w-3 h-3 text-sky-400" />
+                      <span>लोकेशन</span>
+                    </a>
                   </div>
                 </div>
-
-                {/* Call / WhatsApp / Location Buttons */}
-                <div className="flex flex-wrap items-center gap-1.5 pt-1 border-t border-white/[0.06]">
-                  <a
-                    href={buildTelUrl(partner.mobile)}
-                    className="flex-1 min-w-[85px] inline-flex items-center justify-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-gradient-to-r from-[#FF6B00] to-[#f59e0b] text-white text-[11px] font-bold hover:brightness-110 transition"
-                  >
-                    <Phone className="w-3.5 h-3.5" />
-                    <span>कॉल करा</span>
-                  </a>
-                  <a
-                    href={buildWhatsAppUrl(
-                      partner.whatsapp || partner.mobile,
-                      partner.name,
-                      primaryServiceMeta?.label,
-                      userName,
-                      selectedDistrict
-                    )}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="flex-1 min-w-[95px] inline-flex items-center justify-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-emerald-500/15 hover:bg-emerald-500/25 border border-emerald-500/35 text-emerald-300 text-[11px] font-bold transition"
-                  >
-                    <MessageCircle className="w-3.5 h-3.5" />
-                    <span>WhatsApp</span>
-                  </a>
-                  <a
-                    href={buildPartnerMapsUrl(partner)}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="inline-flex items-center justify-center gap-1 px-2.5 py-1.5 rounded-lg bg-white/[0.06] hover:bg-white/[0.12] border border-white/15 text-slate-200 text-[11px] font-semibold transition"
-                  >
-                    <Navigation className="w-3 h-3 text-sky-400" />
-                    <span>लोकेशन</span>
-                  </a>
-                </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
         ) : (
           /* Layer 2: Smart Google Maps Instant Fallback when district has no registered partner yet */
@@ -244,7 +265,11 @@ export function LocalHelpCard({
             }`}
             className="inline-flex items-center gap-1 text-orange-300 hover:text-orange-200 font-semibold ml-auto transition"
           >
-            <span>सर्व स्थानिक सेवा केंद्रे / सल्लागार पहा</span>
+            <span>
+              {remainingCount > 0
+                ? `${districtMarathi} मधील आणखी ${remainingCount} केंद्रे पहा`
+                : "सर्व स्थानिक सेवा केंद्रे / सल्लागार पहा"}
+            </span>
             <ExternalLink className="w-3 h-3" />
           </Link>
         </div>

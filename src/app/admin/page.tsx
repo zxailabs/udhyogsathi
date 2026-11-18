@@ -13,6 +13,7 @@ import {
   Calendar,
   CheckCircle2,
   Clock,
+  CloudUpload,
   Download,
   Edit3,
   ExternalLink,
@@ -20,6 +21,7 @@ import {
   KeyRound,
   Layers,
   LogOut,
+  Mail,
   MapPin,
   MessageCircle,
   Navigation,
@@ -52,6 +54,7 @@ import {
   buildTelUrl,
   buildWhatsAppUrl,
   getDistrictMarathiName,
+  getPartnerWhatsAppNumber,
   getServiceCategoryInfo,
   SERVICE_CATEGORIES,
 } from "@/lib/local-help";
@@ -70,6 +73,7 @@ import {
   fetchEntrepreneursFromFirestore,
   fetchServicePartnersFromFirestore,
   saveServicePartnerToFirestore,
+  syncAllServicePartnersToFirestore,
 } from "@/lib/firestore-service";
 import {
   EntrepreneurProfile,
@@ -139,6 +143,11 @@ export default function AdminPage() {
   const [editingPartner, setEditingPartner] = useState<LocalServicePartner | null>(
     null
   );
+  const [isSyncingFirestore, setIsSyncingFirestore] = useState(false);
+  const [firestoreSyncMsg, setFirestoreSyncMsg] = useState<{
+    type: "success" | "error";
+    text: string;
+  } | null>(null);
 
   // Knowledge base state
   const [kbQuery, setKbQuery] = useState("");
@@ -213,6 +222,26 @@ export default function AdminPage() {
     const updated = deleteServicePartnerLocal(id);
     setServicePartners(updated);
     void deleteServicePartnerFromFirestore(id);
+  };
+
+  const handleSyncPartnersToFirestore = async () => {
+    setIsSyncingFirestore(true);
+    setFirestoreSyncMsg(null);
+    const res = await syncAllServicePartnersToFirestore(servicePartners);
+    setIsSyncingFirestore(false);
+    if (res.ok) {
+      setFirestoreSyncMsg({
+        type: "success",
+        text: `सर्व ${res.syncedCount} सेवा केंद्रे Firebase Firestore मध्ये यशस्वीरीत्या सेव्ह झाली आहेत!`,
+      });
+    } else {
+      setFirestoreSyncMsg({
+        type: "error",
+        text:
+          res.error ||
+          "Firestore कॉन्फिगर केलेले नाही. Vercel / .env.local मध्ये Firebase keys जोडल्यावर हे बटण लगेच चालेल.",
+      });
+    }
   };
 
   const pendingPartners = useMemo(
@@ -1172,6 +1201,21 @@ export default function AdminPage() {
 
                     <button
                       type="button"
+                      disabled={isSyncingFirestore}
+                      onClick={() => void handleSyncPartnersToFirestore()}
+                      title="सर्व १३४+ सेवा केंद्रे Firebase Firestore मध्ये एका क्लिकवर सेव्ह करा"
+                      className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-sky-500/15 hover:bg-sky-500/25 border border-sky-500/35 text-sky-200 text-xs font-bold disabled:opacity-50 transition"
+                    >
+                      <CloudUpload className="w-4 h-4" />
+                      <span>
+                        {isSyncingFirestore
+                          ? "Firestore सिंक सुरू..."
+                          : "Firestore वर सेव्ह करा"}
+                      </span>
+                    </button>
+
+                    <button
+                      type="button"
                       onClick={handleExportPartnersCsv}
                       className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-emerald-500/15 hover:bg-emerald-500/25 border border-emerald-500/35 text-emerald-300 text-xs font-bold transition"
                     >
@@ -1180,6 +1224,18 @@ export default function AdminPage() {
                     </button>
                   </div>
                 </div>
+
+                {firestoreSyncMsg && (
+                  <div
+                    className={`rounded-xl px-4 py-2.5 text-xs border ${
+                      firestoreSyncMsg.type === "success"
+                        ? "bg-emerald-500/15 border-emerald-500/35 text-emerald-200"
+                        : "bg-amber-500/15 border-amber-500/35 text-amber-200"
+                    }`}
+                  >
+                    {firestoreSyncMsg.text}
+                  </div>
+                )}
 
                 {/* Filters */}
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
@@ -1295,6 +1351,9 @@ export default function AdminPage() {
                         <div className="flex flex-wrap items-center justify-between gap-2 pt-2.5 border-t border-white/[0.06] text-xs">
                           <span className="font-space text-slate-200 font-semibold">
                             📞 {partner.mobile}
+                            {partner.secondaryPhone
+                              ? ` / ${partner.secondaryPhone}`
+                              : ""}
                           </span>
                           <div className="flex items-center gap-1.5">
                             <a
@@ -1304,18 +1363,28 @@ export default function AdminPage() {
                               <Phone className="w-3 h-3" />
                               कॉल
                             </a>
-                            <a
-                              href={buildWhatsAppUrl(
-                                partner.whatsapp || partner.mobile,
-                                partner.name
-                              )}
-                              target="_blank"
-                              rel="noopener noreferrer"
-                              className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-emerald-500/15 text-emerald-300 hover:bg-emerald-500/25 transition"
-                            >
-                              <MessageCircle className="w-3 h-3" />
-                              WhatsApp
-                            </a>
+                            {getPartnerWhatsAppNumber(partner) ? (
+                              <a
+                                href={buildWhatsAppUrl(
+                                  getPartnerWhatsAppNumber(partner) || partner.mobile,
+                                  partner.name
+                                )}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-emerald-500/15 text-emerald-300 hover:bg-emerald-500/25 transition"
+                              >
+                                <MessageCircle className="w-3 h-3" />
+                                WhatsApp
+                              </a>
+                            ) : partner.email ? (
+                              <a
+                                href={`mailto:${partner.email}`}
+                                className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-indigo-500/15 text-indigo-200 hover:bg-indigo-500/25 transition"
+                              >
+                                <Mail className="w-3 h-3" />
+                                ईमेल
+                              </a>
+                            ) : null}
                             <a
                               href={buildPartnerMapsUrl(partner)}
                               target="_blank"

@@ -360,8 +360,8 @@ export default function ChatPage() {
               onClick={() => handleSelectSection(dept.id)}
               title={dept.title}
               className={`w-full flex items-center gap-2.5 px-2.5 py-2.5 rounded-xl text-left transition ${active
-                  ? "bg-white/[0.08] border border-white/15 text-white"
-                  : "text-slate-300 hover:bg-white/[0.04] border border-transparent"
+                ? "bg-white/[0.08] border border-white/15 text-white"
+                : "text-slate-300 hover:bg-white/[0.04] border border-transparent"
                 }`}
             >
               <span

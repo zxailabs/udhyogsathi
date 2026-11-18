@@ -10,6 +10,7 @@ import {
   query,
   where,
   limit,
+  writeBatch,
   Firestore,
 } from "firebase/firestore";
 import { EntrepreneurProfile, LocalServicePartner } from "@/types";
@@ -23,7 +24,7 @@ const firebaseConfig = {
   appId: process.env.NEXT_PUBLIC_FIREBASE_APP_ID || "",
 };
 
-function isFirebaseConfigured(): boolean {
+export function isFirebaseConfigured(): boolean {
   return Boolean(firebaseConfig.apiKey && firebaseConfig.projectId);
 }
 
@@ -193,6 +194,45 @@ export async function deleteServicePartnerFromFirestore(id: string): Promise<boo
     return true;
   } catch {
     return false;
+  }
+}
+
+/**
+ * Bulk-uploads all LocalServicePartners into Firestore `service_partners` collection
+ * using chunked batches (max 400 writes per batch) so Admin can sync the entire
+ * Maharashtra seed database to Firestore in one click whenever Firebase is enabled.
+ */
+export async function syncAllServicePartnersToFirestore(
+  partners: LocalServicePartner[]
+): Promise<{ ok: boolean; syncedCount: number; error?: string }> {
+  const db = getDb();
+  if (!db) {
+    return {
+      ok: false,
+      syncedCount: 0,
+      error: "Firebase Firestore अद्याप कॉन्फिगर केलेले नाही (NEXT_PUBLIC_FIREBASE_* व्हेरिएबल्स जोडा).",
+    };
+  }
+  try {
+    const chunkSize = 400;
+    let syncedCount = 0;
+    for (let i = 0; i < partners.length; i += chunkSize) {
+      const chunk = partners.slice(i, i + chunkSize);
+      const batch = writeBatch(db);
+      for (const partner of chunk) {
+        const cleanData = JSON.parse(JSON.stringify(partner)) as Record<string, unknown>;
+        batch.set(doc(db, "service_partners", partner.id), cleanData, { merge: true });
+      }
+      await batch.commit();
+      syncedCount += chunk.length;
+    }
+    return { ok: true, syncedCount };
+  } catch (err) {
+    return {
+      ok: false,
+      syncedCount: 0,
+      error: err instanceof Error ? err.message : "Firestore सिंक करताना त्रुटी आली.",
+    };
   }
 }
 

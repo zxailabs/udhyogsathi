@@ -284,18 +284,47 @@ export function buildPartnerMapsUrl(partner: LocalServicePartner): string {
 }
 
 /**
+ * Extracts a valid 10-digit Indian mobile number (starting with 6-9) if present.
+ * Returns null for landlines or toll-free numbers.
+ */
+export function extractIndianMobile(phone?: string): string | null {
+  if (!phone) return null;
+  const digits = phone.replace(/\D/g, "");
+  if (digits.length === 10 && /^[6-9]/.test(digits)) return digits;
+  if (digits.length === 12 && digits.startsWith("91") && /^[6-9]/.test(digits.slice(2))) {
+    return digits.slice(2);
+  }
+  if (digits.length === 11 && digits.startsWith("0") && /^[6-9]/.test(digits.slice(1))) {
+    return digits.slice(1);
+  }
+  return null;
+}
+
+/**
+ * Checks whether the partner has a valid WhatsApp-capable 10-digit mobile number.
+ */
+export function getPartnerWhatsAppNumber(partner: LocalServicePartner): string | null {
+  return (
+    extractIndianMobile(partner.whatsapp) ||
+    extractIndianMobile(partner.mobile) ||
+    extractIndianMobile(partner.secondaryPhone)
+  );
+}
+
+/**
  * Cleans phone number to digits for tel: and wa.me links.
  */
 export function cleanPhoneDigits(phone: string): string {
-  const digits = phone.replace(/\D/g, "");
-  if (digits.length === 10) return `91${digits}`;
-  if (digits.length === 11 && digits.startsWith("0")) return `91${digits.slice(1)}`;
-  return digits;
+  const mobile = extractIndianMobile(phone);
+  if (mobile) return `91${mobile}`;
+  return phone.replace(/\D/g, "");
 }
 
 export function buildTelUrl(phone: string): string {
-  const digits = cleanPhoneDigits(phone);
-  return `tel:+${digits}`;
+  const mobile = extractIndianMobile(phone);
+  if (mobile) return `tel:+91${mobile}`;
+  const digits = phone.replace(/\D/g, "");
+  return `tel:${digits}`;
 }
 
 export function buildWhatsAppUrl(

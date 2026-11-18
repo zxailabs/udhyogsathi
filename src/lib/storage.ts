@@ -6,6 +6,8 @@ export const AUTH_STORAGE_KEY = "udhyogAghadiAuth";
 export const PARTICLES_STORAGE_KEY = "udhyogAghadiParticles";
 export const USERS_REGISTRY_KEY = "udhyogAghadiUsersRegistry";
 export const SERVICE_PARTNERS_KEY = "udhyogAghadiServicePartners";
+export const SERVICE_PARTNERS_VERSION_KEY = "udhyogAghadiServicePartnersVersion";
+export const CURRENT_PARTNERS_SEED_VERSION = "v2-maharashtra-134";
 
 export interface AuthSession {
   role: "entrepreneur" | "admin";
@@ -236,16 +238,46 @@ export function loadAllRegisteredEntrepreneurs(): EntrepreneurProfile[] {
 export function loadAllServicePartners(): LocalServicePartner[] {
   if (typeof window === "undefined") return SEED_SERVICE_PARTNERS;
   try {
+    const savedVersion = localStorage.getItem(SERVICE_PARTNERS_VERSION_KEY);
     const raw = localStorage.getItem(SERVICE_PARTNERS_KEY);
-    if (!raw) {
+
+    if (!raw || savedVersion !== CURRENT_PARTNERS_SEED_VERSION) {
+      // Preserve any custom/pending entries added by users/admin (exclude old dummy sp-* seeds)
+      let customEntries: LocalServicePartner[] = [];
+      if (raw) {
+        const parsed = JSON.parse(raw) as LocalServicePartner[];
+        if (Array.isArray(parsed)) {
+          const oldDummyIds = new Set([
+            "sp-pune-1",
+            "sp-pune-2",
+            "sp-mumbai-1",
+            "sp-thane-1",
+            "sp-nashik-1",
+            "sp-sambhajinagar-1",
+            "sp-nagpur-1",
+            "sp-kolhapur-1",
+            "sp-satara-1",
+            "sp-solapur-1",
+          ]);
+          const newSeedIds = new Set(SEED_SERVICE_PARTNERS.map((p) => p.id));
+          customEntries = parsed.filter(
+            (p) => p.id && !oldDummyIds.has(p.id) && !newSeedIds.has(p.id)
+          );
+        }
+      }
+      const upgraded = [...customEntries, ...SEED_SERVICE_PARTNERS];
+      localStorage.setItem(SERVICE_PARTNERS_KEY, JSON.stringify(upgraded));
       localStorage.setItem(
-        SERVICE_PARTNERS_KEY,
-        JSON.stringify(SEED_SERVICE_PARTNERS)
+        SERVICE_PARTNERS_VERSION_KEY,
+        CURRENT_PARTNERS_SEED_VERSION
       );
-      return SEED_SERVICE_PARTNERS;
+      return upgraded;
     }
+
     const parsed = JSON.parse(raw) as LocalServicePartner[];
-    return Array.isArray(parsed) ? parsed : SEED_SERVICE_PARTNERS;
+    return Array.isArray(parsed) && parsed.length > 0
+      ? parsed
+      : SEED_SERVICE_PARTNERS;
   } catch {
     return SEED_SERVICE_PARTNERS;
   }
